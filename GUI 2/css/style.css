@@ -1,0 +1,185 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    box-sizing: border-box;
+}
+
+html,body{
+    scroll-behavior: smooth;
+    font-family: sans-serif;
+    font-size: 16px;
+    height: 100%;
+}
+
+body{
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+    background: #fff;
+    color: #080808;
+}
+main {
+    flex: 1; /* Allow main to grow and fill the space */
+    padding: 20px; /* Add some padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+main h1 {
+    text-align: center; /* Center the text horizontally */
+    word-wrap: break-word; /* Ensure that long words break and wrap onto the next line */
+    overflow-wrap: break-word; /* For better support in modern browsers */
+    max-width: 100%; /* Optional: set a max-width to prevent the text from stretching too far */
+    margin: 0 auto; /* Center the element horizontally within its container */
+}
+nav{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.container{
+    background-color: purple;
+    margin: auto;
+    font-size: calc(1rem + 1vw);
+}
+.words{
+    background-color: orange;
+    margin: 50px;
+}
+/* Header */
+.header {
+    width: 100%; /* Full width of the screen */
+    display: flex; /* Flexbox layout */
+    justify-content: space-between; /* Space between the h1 and nav */
+    align-items: center; /* Align items vertically in the center */
+    padding: 25px; /* Add some padding */
+    background-color: #696969; /* Background color of the header */
+    color: white; /* Text color */
+    border-bottom: 2px solid #ddd; /* Add a bottom border with a color (e.g., tomato) */
+}
+
+.footer {
+    width: 100%; /* Full width of the screen */
+    display: flex;
+    justify-content: space-between;
+    padding: 25px; /* Add some padding */
+    background-color: #696969; /* Dark background color */
+    color: white; /* White text color */
+    text-align: center; /* Center align the text */
+    position: relative;
+    bottom: 0;
+    border-top: 2px solid #ddd;
+  }
+
+  /* Style the header link */
+.header-link {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit the color from the header */
+}
+  
+  /* Style the nav links */
+.nav a {
+    margin-left: 20px; /* Add space between nav links */
+    text-decoration: none; /* Remove underline */
+    color: white; /* White text color */
+    font-weight: bold; /* Bold text */
+    transition: color 0.3s; /* Smooth color transition */
+}
+  
+.nav a:hover {
+    color: #505050; /* Change color on hover (example: tomato) */
+}
+/* Selection */
+
+
+.spinningTray {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 50%;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.submit {
+    background-color: #4CAF50; /* Green background */
+    color: white; /* White text */
+    border: none; /* Remove border */
+    padding: 10px 20px; /* Padding for size */
+    font-size: 1rem; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    border-radius: 5px; /* Rounded corners */
+    margin-left: 10px; /* Add some space to the left of the button */
+    transition: background-color 0.3s; /* Smooth background color transition */
+}
+
+.submit:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+.arrow {
+    font-size: 2rem; /* Increase the font size to make the arrows bigger */
+    padding: 10px 0px; /* Add padding to make the clickable area larger */
+    cursor: pointer; /* Change the cursor to a pointer to indicate it's clickable */
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #fff; /* Border around the arrow */
+    color: #555; /* Default arrow color */
+    transition: color 0.3s, transform 0.3s; /* Smooth transition for color and size */
+}
+
+.arrow:hover {
+    color: #1a1a1a; /* Change the arrow color when hovered (e.g., gold) */
+    transform: scale(1.5); /* Slightly increase the size when hovered */
+}
+
+.item-display {
+    text-align: center;
+    flex-grow: 1;
+    margin: 0 20px;
+}
+  
+.spinningTray h1 {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.spinningTray h2 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.spinningTray p{
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.spinningTray button{
+    font-size: 1rem;
+    
+}
+
+
+
+
+/* Chat */
+#chat{
+    width: 100%;
+    padding: 1%;
+    display: flex;
+    background-color: rgb(247, 89, 89);
+}
+#messages{
+    background-color: pink;
+}
+#user{
+    margin-top: 5%;
+    background-color: yellow;
+
+}
