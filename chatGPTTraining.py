@@ -2,37 +2,22 @@ import pandas as pd
 import os
 import json
 from openai import OpenAI
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from sklearn.model_selection import train_test_split
-from huggingface_hub import login
 from dotenv import load_dotenv
 from io import StringIO
 import chardet
 import base64
+from cosineSimilarity import cosine_similarity
 
 load_dotenv()
 
-llama_key=os.getenv("LLAMA_KEY")
 openai_key = os.getenv("OPENAPI_KEY")
-
-login(llama_key)
-
-print("HF_HOME:", os.getenv("HF_HOME"))
-
-#This is for proof of concept.
-#https://huggingface.co/meta-llama/Meta-Llama-3.1-405B
-#https://huggingface.co/umd-zhou-lab/claude2-alpaca-7B
-
 
 df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
 
 X_train, X_test, y_train, y_test = train_test_split(
     df['TherapistText'],df['ClientText'], test_size=0.2, random_state=42)
 
-
-
-LlamaTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-405B") #- errr download model
-LlamaModel = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-3.1-405B") #- download model pt. 2.
 
 #ClaudeTokenizer = AutoTokenizer.from_pretrained("umd-zhou-lab/claude2-alpaca-7B")
 #ClaudeModel = AutoModelForCausalLM.from_pretrained("umd-zhou-lab/claude2-alpaca-7B")
@@ -74,8 +59,8 @@ client = OpenAI(api_key = openai_key)
 #client.files.create(file=open("fine-tuning.json", "rb"),purpose="fine-tune")
 #client.fine_tuning.jobs.create(training_file="file-C59GMg7EDqlqcvLL5OL6EFgH",model="gpt-4o-mini-2024-07-18")
 
-
-with open('step_metrics.csv', 'rb') as f:
+#show results
+with open(os.path.join('results','chatGPT-4o','results.csv'), 'rb') as f:
     base64_encoded_data = f.read()
 decoded_data = base64.b64decode(base64_encoded_data)
 result = chardet.detect(decoded_data)
@@ -84,8 +69,6 @@ decoded_text = decoded_data.decode(encoding)
 df = pd.read_csv(StringIO(decoded_text))
 print(df.tail())
 
-def cosine_sim(df,message):
-    print("not done")
 
 raise ValueError
 while True:
@@ -99,17 +82,3 @@ while True:
     )
     print(completion.choices[0].message)
 
-raise ValueError
-
-'''
-
-prompt = "Hey, are you conscious? Can you talk to me?"
-
-inputs = LlamaTokenizer(prompt, return_tensors="pt").input_ids
-
-
-generate_ids = LlamaModel.generate(inputs, max_length=30)
-output = LlamaTokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
-print(output)
-
-'''

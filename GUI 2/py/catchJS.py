@@ -33,6 +33,7 @@ def preload_model():
         print(f"Error preloading model: {error_message}\n{traceback_str}")
         return jsonify({"error": f"Failed to preload model: {error_message}"}), 500
 
+# Route to send messages
 @app.route('/api/send-message', methods=['POST'])
 def send_message():
     global loaded_model
@@ -49,7 +50,8 @@ def send_message():
 
         # Pass the user's message to the loaded ML model and get a response
         bot_response = get_ml_response(user_message)
-        print(bot_response)
+        if bot_response[:4].lower()=="bot:":
+            bot_response=bot_response[4:]
         return jsonify({"response": bot_response})
     except Exception as e:
         # Capture and log the exception

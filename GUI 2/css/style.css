@@ -40,12 +40,10 @@ nav{
     flex-wrap: wrap;
 }
 .container{
-    background-color: purple;
     margin: auto;
     font-size: calc(1rem + 1vw);
 }
 .words{
-    background-color: orange;
     margin: 50px;
 }
 /* Header */
@@ -170,16 +168,79 @@ nav{
 
 /* Chat */
 #chat{
-    width: 100%;
-    padding: 1%;
+    background-color: #ffffff;
+    width: 100vw; /* 50% of the viewport width */
+    height: 100vh; /* 50% of the viewport height */
+    overflow: hidden;
     display: flex;
-    background-color: rgb(247, 89, 89);
+    flex-direction: column;
+    align-self: center;
+    
 }
-#messages{
-    background-color: pink;
+#chatbox {
+    padding: 20px;
+    overflow-y: auto;
+    border-bottom: 1px solid #eee;
+    flex: 1;
 }
-#user{
-    margin-top: 5%;
-    background-color: yellow;
 
+#messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    
+}
+
+.message {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    max-width: 80%;
+    word-wrap: break-word;
+    box-sizing: border-box;
+}
+
+.user-message {
+    background-color: #d9f7be;
+    align-self: flex-start;
+    border: 1px solid #b7eb8f;
+}
+
+.bot-message {
+    background-color: #e6f7ff;
+    align-self: flex-end;
+    border: 1px solid #91d5ff;
+}
+
+
+#user {
+    display: flex;
+    border-top: 1px solid #eee;
+    padding: 10px;
+    background-color: #fafafa;
+}
+
+#user-input {
+    font-size: 18px;
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+button {
+    margin: 10px;
+    padding: 10px 15px;
+    border: none;
+    background-color: #1890ff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #40a9ff;
 }

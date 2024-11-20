@@ -35,18 +35,22 @@ function preloadModel() {
 function sendMessage() {
     let userInput = document.getElementById('user-input').value;
     if (userInput) {
-        appendMessage('user', userInput);
         if (!loadedModel) {
-            console.error("Model not loaded. Please preload the model first.");
+            console.error("Model not loaded. Please preload the model first."); // If model not loaded
             return;
         }
+
+        appendMessage('user', userInput);
+        const fullChatHistory = generateChatHistory(); // generate after appending
+
+        console.log(fullChatHistory);
 
         fetch('http://127.0.0.1:5000/api/send-message', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ message: userInput }),  // Use 'userInput' instead of 'userMessage'
+            body: JSON.stringify({ message: fullChatHistory }),  
         })
         .then(response => response.json())
         .then(data => {
@@ -69,4 +73,18 @@ function appendMessage(sender, text) {
     document.getElementById('messages').appendChild(messageContainer);
 }
 
-window.onload = preloadModel;  // Preload the model when the page loads
+// Function to generate chat history from UI
+function generateChatHistory() {
+    const messagesContainer = document.getElementById('messages');
+    const messageElements = messagesContainer.getElementsByClassName('message');
+    let chatHistory = "System: This is a conversation with a new therapist, do not refer to previous therapy sessions.\n";
+
+    for (let messageElement of messageElements) {
+        
+        chatHistory += messageElement.textContent + "\n";
+    }
+
+    return chatHistory.trim();
+}
+
+window.onload = preloadModel; 

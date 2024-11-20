@@ -1,5 +1,5 @@
 const items = [
-    { title: 'Dummy Model', description: 'Proof of Concept model to show capabilities, accessability, and form a chain of thought.', mentalIllness: 'Major Depressive Disorder', age: '25' },
+    { title: 'Dummy Model', description: 'Proof of Concept model to show capabilities, accessability, and form a chain of thought.', mentalIllness: 'Major Depressive Disorder', age: '65' },
     { title: 'TBA', description: 'Description of Item 2', mentalIllness: 'TBA', age: 'TBA' },
     { title: 'TBA', description: 'Description of Item 3', mentalIllness: 'TBA', age: 'TBA' },
     { title: 'TBA', description: 'Description of Item 4', mentalIllness: 'TBA', age: 'TBA' },

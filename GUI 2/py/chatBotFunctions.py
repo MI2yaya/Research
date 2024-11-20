@@ -17,7 +17,7 @@ def load_ml_model(model_name):
         openai_key = os.getenv("OPENAPI_KEY")
         client = OpenAI(api_key = openai_key)
         defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-        defaultMessage += f"Your name is Bot1 and your age is between 60-70 with the mental illness: Major Depressive Disorder"
+        defaultMessage += f"Your name is Bot1 and your age is between 65 with the mental illness: Major Depressive Disorder"
         
         print(f"{loaded_model} preloaded.")
         return(loaded_model)
