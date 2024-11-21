@@ -8,10 +8,12 @@ from cosineSimilarity import cosine_similarity
 import psutil
 import torch
 
+
 load_dotenv()
 
-print("CUDA_HOME:", os.getenv("CUDA_HOME"))
 print("HF_HOME:", os.getenv("HF_HOME"))
+print("PyTorch version:", torch.__version__)
+print("CUDA version:", torch.version.cuda)
 
 total_memory = psutil.virtual_memory().total / 1e9 
 available_memory = psutil.virtual_memory().available / 1e9 
@@ -20,12 +22,20 @@ print(f"Total Memory: {total_memory:.2f} GB")
 print(f"Available Memory: {available_memory:.2f} GB")
 
 #torch.cuda.init()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-print("CUDA Available:", torch.cuda.is_available())
 print("Number of GPUs:", torch.cuda.device_count())
 if torch.cuda.is_available():
+    total_memory = torch.cuda.get_device_properties(0).total_memory / 1e9  # Convert to GB
+    available_memory = torch.cuda.memory_allocated(0) / 1e9  # Allocated memory in GB
+    reserved_memory = torch.cuda.memory_reserved(0) / 1e9  # Reserved memory in GB
+    
+    print(f"Total GPU Memory: {total_memory:.2f} GB")
+    print(f"Allocated GPU Memory: {available_memory:.2f} GB")
+    print(f"Reserved GPU Memory: {reserved_memory:.2f} GB")
     print("GPU Name:", torch.cuda.get_device_name(0))
-
+else:
+    print("CUDA is not available.")
 
 llama_key=os.getenv("LLAMA_KEY")
 login(llama_key)
@@ -36,11 +46,16 @@ login(llama_key)
 #https://huggingface.co/meta-llama/Meta-Llama-3.1-405B
 #https://huggingface.co/umd-zhou-lab/claude2-alpaca-7B
 
-
-
-LlamaTokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-405B") 
+print("loading tokenizer")
+LlamaTokenizer = AutoTokenizer.from_pretrained("D:/Models/huggingface/hub/models--meta-llama--Llama-3.1-8B/snapshots/11-20-24")
+print('loading model')
 LlamaModel = AutoModelForCausalLM.from_pretrained(
-    "meta-llama/Llama-3.1-405B",) 
+    "D:/Models/huggingface/hub/models--meta-llama--Llama-3.1-8B/snapshots/11-20-24",
+    offload_folder="D:/Offload Cache",
+    offload_state_dict=True,
+    ignore_mismatched_sizes=True)
+
+print('done')
 
 #test model
 while True:
