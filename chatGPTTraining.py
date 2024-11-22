@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 from io import StringIO
 import chardet
 import base64
-
 from generateJSON import generateJSON
+
+#https://platform.openai.com/chat-completions
 
 load_dotenv()
 

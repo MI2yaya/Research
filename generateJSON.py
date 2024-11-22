@@ -5,11 +5,13 @@ def generateJSON(df,type,name):
     
     
     
-    with open("name.json", "w") as outfile:
+    with open(f"{name}.json", "w") as outfile:
         outfile.write("")
-    if (type.lower=="chatgpt"):
-        defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-        defaultMessage+=f"Your name is Bot1 and your age is between {df['AgeRange'][0]} with the mental illness: {df['MentalIllness'][0]}"
+    
+    defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
+    defaultMessage+=f" Your name is Bot1 and your age is between {df['AgeRange'][0]} with the mental illness: {df['MentalIllness'][0]}"
+    
+    if (type.lower()=="chatgpt"):
         
         for index in range(len(df)-1):
             
@@ -28,16 +30,22 @@ def generateJSON(df,type,name):
             messageList.append(tempMessageDict)
             
             openaiMessage = {"messages":messageList}
-            with open("fine-tuning.json", "a") as outfile: 
+            with open(f"{name}.json", "a") as outfile: 
                 outfile.write(json.dumps(openaiMessage) + "\n")
         return(defaultMessage)
-    elif (type.lower=='gemini'):
+    elif (type.lower()=='gemini'):
+        
+        contents=[]
+        
+        systemInstruction = {"role" : "","parts":[{"text":defaultMessage}]}
+                
         for index in range(len(df)-1):
             
-            messageList=[]
-            tempMessageDict = {"text_input": df['TherapistText'][index], "output": df['ClientText'][index+1]}
-            messageList.append(tempMessageDict)
+            tempMessageDict={'role':"user","parts":[{"text":df['TherapistText'][index]}]}
+            contents.append(tempMessageDict)
+            tempMessageDict={'role':"model","parts":[{"text":df['ClientText'][index+1]}]}
+            contents.append(tempMessageDict)
             
-            with open("fine-tuning.json", "a") as outfile: 
-                outfile.write(json.dumps(messageList) + ",\n")
+        with open(f"{name}.json", "a") as outfile: 
+            outfile.write(json.dumps({"systemInstruction":systemInstruction,"contents":contents}))
         
