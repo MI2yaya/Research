@@ -1,8 +1,6 @@
 import pandas as pd
 import os
-import json
 from openai import OpenAI
-from sklearn.model_selection import train_test_split
 from dotenv import load_dotenv
 from io import StringIO
 import chardet

@@ -11,3 +11,5 @@ dist/
 # Ignore large files like models
 results
 GUI 2/node_modules/electron/dist/electron.exe
+gemini-fine-tuning-442602-4d1aa27225be.json
+.boto

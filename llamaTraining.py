@@ -4,7 +4,6 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from sklearn.model_selection import train_test_split
 from huggingface_hub import login
 from dotenv import load_dotenv
-from cosineSimilarity import cosine_similarity
 import psutil
 import torch
 

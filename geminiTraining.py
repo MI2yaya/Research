@@ -1,47 +1,73 @@
-import google.generativeai as genai 
+
 import os
 from dotenv import load_dotenv
-import pandas as pd
 from generateJSON import generateJSON
-import time
+import vertexai
+from vertexai.tuning import sft
+from vertexai.generative_models import GenerativeModel, SafetySetting
 
-
-#https://github.com/GoogleCloudPlatform/generative-ai/blob/main/gemini/tuning/supervised_finetuning_using_gemini.ipynb - ...????? uses a diff library
+#https://console.cloud.google.com/welcome/new?walkthrough_id=vertex-pytorch-custom-training&inv=1&invt=AbiN7A&project=gen-lang-client-0291103620
+#https://console.cloud.google.com/home/dashboard?inv=1&invt=AbiN7A&walkthrough_id=vertex-pytorch-custom-training&project=gen-lang-client-0291103620
 #https://aistudio.google.com/tune
 
 load_dotenv()
 
-google_key = os.getenv("GOOGLE_KEY")
-print(google_key)
 
-df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
-generateJSON(df,"gemini",'gemini-fine-tune')
 
-with open('gemini-fine-tune.json') as f:
-    training_data = f.read().splitlines()[0]
+#df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
+#generateJSON(df,"vertex",'gemini-fine-tune')
 
-#print(training_data)
 
-#raise ValueError
 
-genai.configure(api_key=google_key)
-
-operation = genai.create_tuned_model(
-    # You can use a tuned model here too. Set `source_model="tunedModels/..."`
-    source_model="models/gemini-1.5-pro-002",
-    display_name="Dummy Model",
-    training_data='gemini-fine-tune.json'
+vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
+'''
+sft_tuning_job = sft.train(
+    source_model="gemini-1.5-pro-002",
+    train_dataset="gs://gemini-fine-tuning-bucket/gemini-fine-tune.jsonl",
+    tuned_model_display_name="tuned_gemini_1_5_pro",
 )
 
-for status in operation.wait_bar():
-    time.sleep(10)
+'''
+generation_config = {
+    "max_output_tokens": 8192,
+    "temperature": 1,
+}
 
-result = operation.result()
-print(result)
-# # You can plot the loss curve with:
-# snapshots = pd.DataFrame(result.tuning_task.snapshots)
-# sns.lineplot(data=snapshots, x='epoch', y='mean_loss')
+safety_settings = [
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+    SafetySetting(
+        category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=SafetySetting.HarmBlockThreshold.OFF
+    ),
+]
 
-model = genai.GenerativeModel(model_name=result.name)
-result = model.generate_content("Hello, tell me a little about yourself")
-print(result.text)
+model = GenerativeModel("projects/903507590578/locations/us-east1/endpoints/427617664228130816")
+
+
+
+
+chat = model.start_chat()
+
+response = chat.send_message(content="Hello, world!")
+print("Response:", response.text)
+
+while True:
+    response = chat.send_message(
+            content=input("enter msg"),
+            generation_config = generation_config,
+            safety_settings=safety_settings,
+        )
+
+    # Print the response
+    print("Response:", response.text)
