@@ -21,8 +21,8 @@ chatGPT4oDefaultMessage = generateJSON(df,"chatgpt",'chatGPT-fine-tune.json')
 client = OpenAI(api_key = openai_key)
 
 #client.files.create(file=open("chatGPT-fine-tuning.json", "rb"),purpose="fine-tune")
-#client.fine_tuning.jobs.create(training_file="file-C59GMg7EDqlqcvLL5OL6EFgH",model="gpt-4o-mini-2024-07-18")
-
+client.fine_tuning.jobs.create(training_file="file-C59GMg7EDqlqcvLL5OL6EFgH",model="gpt-4o-2024-08-06")
+raise ValueError
 #show results
 with open(os.path.join('results','chatGPT-4o','results.csv'), 'rb') as f:
     base64_encoded_data = f.read()

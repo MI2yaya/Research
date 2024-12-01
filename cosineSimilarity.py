@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from generateJSON import generateJSON
 import random
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, SafetySetting
+import time
+
 
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 model = BertModel.from_pretrained('bert-base-uncased')
@@ -54,20 +58,32 @@ def testing(model):
         client = OpenAI(api_key = openai_key)
         chatGPT4oDefaultMessage = generateJSON(df,"chatgpt",'chatGPT-fine-tune')
 
+    if model.lower()=="gemini":
+        vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
+        gemini = GenerativeModel(
+            "projects/903507590578/locations/us-east1/endpoints/4254410710097854464"
+        )
+        generation_config = {
+            "max_output_tokens": 8192,
+            "temperature": 1
+        }
+        chat = gemini.start_chat(response_validation=False)
+        
     cosSimList=[]
     softCosSimList=[]
 
     for _ in range(50):
+        error=False
         random_index = random.randint(0, len(df) - 2)
         msg = df['TherapistText'].iloc[random_index]
         output = df['ClientText'].iloc[random_index+1]
 
-        print(f"\nInput info:\nModel: {model}\nMessage: {msg}\nExpected Output: {output}\n")
+        print(f"\nInput info:\nModel: {model}\nSelected Message: {msg}\nExpected Output: {output}\n")
 
         #model dependent
         if model.lower()=='chatgpt':
             completion = client.chat.completions.create(
-                model = "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ",
+                model = "ft:gpt-4o-2024-08-06:personal::AYGKLhoP",
                 messages=[
                     {"role":"system",'content':chatGPT4oDefaultMessage},
                     {'role':'user','content':msg}
@@ -75,14 +91,30 @@ def testing(model):
             )
             modelOutput = completion.choices[0].message.content
         #add gemini, llama
+        if model.lower()=='gemini':
+            try:
+                response = chat.send_message(
+                    content=msg,
+                    generation_config = generation_config
+                )
+                modelOutput = response.text
+            except IndexError:
+                print("err")
+                error=True
+            except Exception as e:
+                error=True
+                time.sleep(5)
+        if not error:
+            print("Response:", modelOutput)
+            cosSim,softCosSim=metrics(modelOutput,output)
+            cosSimList.append(cosSim)
+            softCosSimList.append(softCosSim)
+        else:
+            _ -=1
+        time.sleep(1)
 
 
-
-
-        cosSim,softCosSim=metrics(modelOutput,output)
-        cosSimList.append(cosSim)
-        softCosSimList.append(softCosSim)
 
     print(f"\nOutput:\nAverage Cosine Similarity: {sum(cosSimList)/len(cosSimList)}\nAverage Soft Cosine Similarity: {sum(softCosSimList)/len(softCosSimList)}")
     
-testing("chatgpt")
+testing("gemini")

@@ -1,73 +1,83 @@
+from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
+from datasets import Dataset
+from sklearn.metrics import accuracy_score
 import pandas as pd
 import os
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from sklearn.model_selection import train_test_split
-from huggingface_hub import login
-from dotenv import load_dotenv
-import psutil
 import torch
-
+from dotenv import load_dotenv
+from huggingface_hub import login
 
 load_dotenv()
 
-print("HF_HOME:", os.getenv("HF_HOME"))
-print("PyTorch version:", torch.__version__)
-print("CUDA version:", torch.version.cuda)
-
-total_memory = psutil.virtual_memory().total / 1e9 
-available_memory = psutil.virtual_memory().available / 1e9 
-
-print(f"Total Memory: {total_memory:.2f} GB")
-print(f"Available Memory: {available_memory:.2f} GB")
-
-#torch.cuda.init()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-print("Number of GPUs:", torch.cuda.device_count())
-if torch.cuda.is_available():
-    total_memory = torch.cuda.get_device_properties(0).total_memory / 1e9  # Convert to GB
-    available_memory = torch.cuda.memory_allocated(0) / 1e9  # Allocated memory in GB
-    reserved_memory = torch.cuda.memory_reserved(0) / 1e9  # Reserved memory in GB
-    
-    print(f"Total GPU Memory: {total_memory:.2f} GB")
-    print(f"Allocated GPU Memory: {available_memory:.2f} GB")
-    print(f"Reserved GPU Memory: {reserved_memory:.2f} GB")
-    print("GPU Name:", torch.cuda.get_device_name(0))
-else:
-    print("CUDA is not available.")
-
-llama_key=os.getenv("LLAMA_KEY")
+llama_key = os.getenv("LLAMA_KEY")
 login(llama_key)
 
+# Load dataset
+df = pd.read_csv(
+    os.path.join('processedData', 'Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),
+    usecols=["ID", "MentalIllness", "AgeRange", 'ClientText', "TherapistText"]
+)
+df['input_text'] = df['TherapistText'] + " </s> " + df['ClientText']
+df.dropna(subset=['TherapistText', 'ClientText'], inplace=True)
 
+# Convert to Dataset
+dataset = Dataset.from_pandas(df[['input_text']])
+train_test_split = dataset.train_test_split(test_size=0.1)
 
-#This is for proof of concept.
-#https://huggingface.co/meta-llama/Meta-Llama-3.1-405B
-#https://huggingface.co/umd-zhou-lab/claude2-alpaca-7B
+# Load tokenizer and model
+model_name = "meta-llama/Llama-3.2-1B"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+if tokenizer.pad_token is None:
+    tokenizer.add_special_tokens({'pad_token': tokenizer.eos_token})
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    ignore_mismatched_sizes=True
+)
+model.gradient_checkpointing_enable()
 
-print("loading tokenizer")
-LlamaTokenizer = AutoTokenizer.from_pretrained("D:/Models/huggingface/hub/models--meta-llama--Llama-3.1-8B/snapshots/11-20-24")
-print('loading model')
-LlamaModel = AutoModelForCausalLM.from_pretrained(
-    "D:/Models/huggingface/hub/models--meta-llama--Llama-3.1-8B/snapshots/11-20-24",
-    offload_folder="D:/Offload Cache",
-    offload_state_dict=True,
-    ignore_mismatched_sizes=True)
+# Tokenize dataset
+def tokenize_function(examples):
+    tokenized = tokenizer(
+        examples['input_text'],
+        padding="max_length",
+        truncation=True,
+        max_length=128
+    )
+    tokenized["labels"] = tokenized["input_ids"]
+    return tokenized
 
-print('done')
+tokenized_datasets = train_test_split.map(tokenize_function, batched=True)
+tokenized_datasets = tokenized_datasets.remove_columns(["input_text"])
 
-#test model
-while True:
-    prompt = input("Msg: ")
+# Define training arguments
+training_args = TrainingArguments(
+    output_dir='results/Llama-3.2v-1B-Finetuned',
+    num_train_epochs=3,
+    per_device_train_batch_size=1,
+    per_device_eval_batch_size=1,
+    gradient_accumulation_steps=4,
+    warmup_steps=500,
+    weight_decay=0.01,
+    logging_dir='./logs',
+    logging_steps=10,
+    evaluation_strategy="epoch",
+    save_strategy="epoch",
+    load_best_model_at_end=True,
+    fp16=True
+)
 
-    inputs = LlamaTokenizer(prompt, return_tensors="pt").input_ids
+# Initialize Trainer
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_datasets['train'],
+    eval_dataset=tokenized_datasets['test'],
+    tokenizer=tokenizer
+)
 
-    generate_ids = LlamaModel.generate(inputs, max_length=30)
-    output = LlamaTokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
-    print(output)
+# Train model
+trainer.train()
 
-
-df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
-
-X_train, X_test, y_train, y_test = train_test_split(
-    df['TherapistText'],df['ClientText'], test_size=0.2, random_state=42)
+# Save model
+model.save_pretrained("results/Llama-3.2v-1B-Finetuned")
+tokenizer.save_pretrained("results/Llama-3.2v-1B-Finetuned")
