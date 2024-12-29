@@ -1,8 +1,8 @@
 #dont forget to run this
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS  # Import CORS
-from chatBotFunctions import load_ml_model, get_ml_response
+from py.chatBotFunctions import load_ml_model, get_ml_response
 import traceback
 
 app = Flask(__name__)
@@ -11,6 +11,14 @@ CORS(app)
 
 # Global variable to store the loaded model
 loaded_model = None
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/chatBot')
+def chatBot():
+    return render_template('chatBot.html')
 
 # Route to preload the model
 @app.route('/api/preload-model', methods=['POST'])
@@ -43,7 +51,7 @@ def send_message():
 
         print("waiting..")
         print(user_message)
-        
+         
         # Check if a model has been loaded
         if not loaded_model:
             raise ValueError("Model not loaded. Please preload a model first.")

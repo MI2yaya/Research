@@ -40,7 +40,7 @@ submitBtn.addEventListener('click', () => {
 
     // Redirect to chatBot.html with the selected item as a query parameter
     const selectedItem = document.getElementById("selectedItem").value;
-    window.location.href = `chatBot.html?selectedItem=${encodeURIComponent(selectedItem)}`;
+    window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}`;
 });
 
 // Function to update the hidden input value

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbox</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 
@@ -31,6 +31,6 @@
 
 <div id="footer"></div>
 
-<script src="JS/loadTemplates.js"></script>
-<script src="JS/spinningTray.js"></script>
+<script src="{{ url_for('static', filename='JS/loadTemplates.js') }}" defer></script>
+<script src="{{ url_for('static', filename='JS/spinningTray.js') }}" defer></script>
 </html>

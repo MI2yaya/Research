@@ -17,7 +17,7 @@ function loadHTML(url, elementId) {
   
   // Load the header into the page
   document.addEventListener('DOMContentLoaded', () => {
-    loadHTML('templates/header.html', 'header');
-    loadHTML('templates/footer.html', 'footer');
+    loadHTML('/static/header.html', 'header');
+    loadHTML('/static/footer.html', 'footer');
   });
   
