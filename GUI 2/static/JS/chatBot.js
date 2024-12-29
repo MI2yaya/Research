@@ -12,7 +12,7 @@ const selectedItem = getQueryParam('selectedItem');
 // Function to preload model
 function preloadModel() {
     if (selectedItem) {
-        fetch('${BASE_URL}/api/preload-model', {
+        fetch(`${BASE_URL}/api/preload-model`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ function sendMessage() {
 
         console.log(fullChatHistory);
 
-        fetch('${BASE_URL}/api/send-message', {
+        fetch(`${BASE_URL}/api/send-message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
