@@ -1,5 +1,7 @@
 let loadedModel = null;
 
+const BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000' : 'https://ai-psychotherapy-training-deployment.onrender.com';
+
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
@@ -10,7 +12,7 @@ const selectedItem = getQueryParam('selectedItem');
 // Function to preload model
 function preloadModel() {
     if (selectedItem) {
-        fetch('http://127.0.0.1:5000/api/preload-model', {
+        fetch('${BASE_URL}/api/preload-model', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ function sendMessage() {
 
         console.log(fullChatHistory);
 
-        fetch('http://127.0.0.1:5000/api/send-message', {
+        fetch('${BASE_URL}/api/send-message', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

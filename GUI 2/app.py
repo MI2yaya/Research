@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS  # Import CORS
 from py.chatBotFunctions import load_ml_model, get_ml_response
 import traceback
+import os
 
 app = Flask(__name__)
 
@@ -69,4 +70,5 @@ def send_message():
         return jsonify({"error": f"Failed to process message: {error_message}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # Use PORT from environment or default to 5000
+    app.run(host='0.0.0.0', port=port, debug=True)
