@@ -6,6 +6,7 @@ const items = [
 ];
 
 let currentIndex = 0;
+let selectedModel = null;
 
 const itemTitle = document.getElementById('itemTitle');
 const itemDescription = document.getElementById('itemDescription');
@@ -33,14 +34,35 @@ nextBtn.addEventListener('click', () => {
     updateItemDisplay();
 });
 
+// Add event listeners to model buttons
+document.querySelectorAll('.modelButton').forEach(button => {
+    button.addEventListener('click', (event) => {
+        // Remove "selected" class from all buttons
+        document.querySelectorAll('.modelButton').forEach(btn => btn.classList.remove('selected'));
+
+        // Add "selected" class to the clicked button
+        event.target.classList.add('selected');
+
+        // Update the selected model
+        selectedModel = event.target.getAttribute('data-model');
+    });
+});
+
 // Event listener for the submit button
 submitBtn.addEventListener('click', () => {
+
+    if (!selectedModel) {
+        alert('Please select an ML model before submitting.');
+        return;
+    }
+
     // Update the hidden input value
     updateSelectedItem();
+    document.getElementById('selectedModel').value = selectedModel;
 
     // Redirect to chatBot.html with the selected item as a query parameter
     const selectedItem = document.getElementById("selectedItem").value;
-    window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}`;
+    window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}&selectedModel=${encodeURIComponent(selectedModel)}`;
 });
 
 // Function to update the hidden input value

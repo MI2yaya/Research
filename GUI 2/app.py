@@ -27,10 +27,11 @@ def preload_model():
     global loaded_model
     try:
         data = request.get_json()
-        model_name = data['model']
-        print(model_name)
+        character = data['character']
+        model = data['model']
+        
         # Load the model and store it in the global variable
-        loaded_model = load_ml_model(model_name)
+        loaded_model = load_ml_model(character,model)
         return jsonify({
             "message": f"Model {loaded_model} preloaded successfully",
             "model": loaded_model
@@ -59,8 +60,10 @@ def send_message():
 
         # Pass the user's message to the loaded ML model and get a response
         bot_response = get_ml_response(user_message)
+        print(bot_response)
         if bot_response[:4].lower()=="bot:":
             bot_response=bot_response[4:]
+        print("its alive ",bot_response)
         return jsonify({"response": bot_response})
     except Exception as e:
         # Capture and log the exception

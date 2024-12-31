@@ -8,16 +8,19 @@ function getQueryParam(param) {
 }
 
 const selectedItem = getQueryParam('selectedItem');
-
+const selectedModel = getQueryParam('selectedModel')
 // Function to preload model
 function preloadModel() {
-    if (selectedItem) {
+    if (selectedItem && selectedModel) {
         fetch(`${BASE_URL}/api/preload-model`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ model: selectedItem }),
+            body: JSON.stringify({
+                character: selectedItem,
+                model: selectedModel
+            }),
         })
         .then(response => response.json())
         .then(data => {
