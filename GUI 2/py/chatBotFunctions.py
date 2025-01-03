@@ -11,10 +11,9 @@ load_dotenv()
 loaded_model = None
 
 def load_ml_model(character,model):
-    global loaded_model
+    global loaded_model, client, defaultMessage, conversation_gemini
     if character == "Model 1":
         if model=="GPT":
-            global client, defaultMessage
             loaded_model = "ft:gpt-4o-2024-08-06:personal::AYGKLhoP"
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
@@ -23,7 +22,6 @@ def load_ml_model(character,model):
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="GPT-Mini":
-            global client, defaultMessage
             loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ"
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
@@ -32,7 +30,6 @@ def load_ml_model(character,model):
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="Gemini":
-            global generation_config, safety_settings, conversation_gemini
             loaded_model = "projects/903507590578/locations/us-east1/endpoints/4254410710097854464"
             vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
             client = GenerativeModel(loaded_model)
@@ -43,7 +40,6 @@ def load_ml_model(character,model):
 
     elif character == "Model 2":
         if model=="GPT":
-            global client, defaultMessage
             loaded_model = "ft:gpt-4o-2024-08-06:personal::AlR6KFIV"
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
@@ -52,7 +48,6 @@ def load_ml_model(character,model):
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="GPT-Mini":
-            global client, defaultMessage
             loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm"
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
@@ -61,7 +56,6 @@ def load_ml_model(character,model):
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="Gemini":
-            global conversation_gemini
             loaded_model = "projects/903507590578/locations/us-east1/endpoints/2611933852246999040"
             vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
             client = GenerativeModel(loaded_model)
