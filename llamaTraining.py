@@ -14,7 +14,7 @@ login(llama_key)
 
 # Load dataset
 df = pd.read_csv(
-    os.path.join('processedData', 'Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),
+    os.path.join('processedData', 'Manual-BB3-Session-10-Annotated-Transcript-Final.csv'),
     usecols=["ID", "MentalIllness", "AgeRange", 'ClientText', "TherapistText"]
 )
 df['input_text'] = df['TherapistText'] + " </s> " + df['ClientText']
@@ -25,12 +25,14 @@ dataset = Dataset.from_pandas(df[['input_text']])
 train_test_split = dataset.train_test_split(test_size=0.1)
 
 # Load tokenizer and model
-model_name = "meta-llama/Llama-3.2-1B"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+mother_series = "meta-llama"
+model_name = "Llama-3.2-1B"
+combined_name = mother_series+"/"+model_name
+tokenizer = AutoTokenizer.from_pretrained(combined_name)
 if tokenizer.pad_token is None:
     tokenizer.add_special_tokens({'pad_token': tokenizer.eos_token})
 model = AutoModelForCausalLM.from_pretrained(
-    model_name,
+    combined_name,
     ignore_mismatched_sizes=True
 )
 model.gradient_checkpointing_enable()
@@ -51,7 +53,7 @@ tokenized_datasets = tokenized_datasets.remove_columns(["input_text"])
 
 # Define training arguments
 training_args = TrainingArguments(
-    output_dir='results/Llama-3.2v-1B-Finetuned',
+    output_dir=f'results/{model_name}-T2',
     num_train_epochs=3,
     per_device_train_batch_size=1,
     per_device_eval_batch_size=1,
@@ -79,5 +81,5 @@ trainer = Trainer(
 trainer.train()
 
 # Save model
-model.save_pretrained("results/Llama-3.2v-1B-Finetuned")
-tokenizer.save_pretrained("results/Llama-3.2v-1B-Finetuned")
+model.save_pretrained(f"results/{model_name}-T2")
+tokenizer.save_pretrained(f"results/{model_name}-T2")

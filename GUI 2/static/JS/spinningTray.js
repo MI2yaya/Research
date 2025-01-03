@@ -1,6 +1,6 @@
 const items = [
-    { title: 'Dummy Model', description: 'Proof of Concept model to show capabilities, accessability, and form a chain of thought.', mentalIllness: 'Major Depressive Disorder', age: '65' },
-    { title: 'TBA', description: 'Description of Item 2', mentalIllness: 'TBA', age: 'TBA' },
+    { title: 'Model 1', description: 'Proof of Concept model to show capabilities, accessability, and form a chain of thought.', mentalIllness: 'Major Depressive Disorder', age: '65' },
+    { title: 'Model 2', description: 'Proof of Concept model for Anxiety', mentalIllness: 'Generalized Anxiety', age: '50' },
     { title: 'TBA', description: 'Description of Item 3', mentalIllness: 'TBA', age: 'TBA' },
     { title: 'TBA', description: 'Description of Item 4', mentalIllness: 'TBA', age: 'TBA' },
 ];

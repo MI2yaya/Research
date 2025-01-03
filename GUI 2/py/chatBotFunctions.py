@@ -12,15 +12,23 @@ loaded_model = None
 
 def load_ml_model(character,model):
     global loaded_model
-    if character == "Dummy Model":
+    if character == "Model 1":
         if model=="GPT":
+            global client, defaultMessage
+            loaded_model = "ft:gpt-4o-2024-08-06:personal::AYGKLhoP"
+            openai_key = os.getenv("OPENAPI_KEY")
+            client = OpenAI(api_key = openai_key)
+            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
+            defaultMessage += f"Your name is Bot1 and your age is between 65 with the mental illness: Major Depressive Disorder"
+            print(f"{loaded_model} preloaded.")
+            return(loaded_model)
+        if model=="GPT-Mini":
             global client, defaultMessage
             loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ"
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
             defaultMessage += f"Your name is Bot1 and your age is between 65 with the mental illness: Major Depressive Disorder"
-            
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="Gemini":
@@ -29,6 +37,67 @@ def load_ml_model(character,model):
             vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
             client = GenerativeModel(loaded_model)
             conversation_gemini = client.start_chat()
+            print(f"{loaded_model} preloaded.")
+            return(loaded_model)
+            
+
+    elif character == "Model 2":
+        if model=="GPT":
+            global client, defaultMessage
+            loaded_model = "ft:gpt-4o-2024-08-06:personal::AlR6KFIV"
+            openai_key = os.getenv("OPENAPI_KEY")
+            client = OpenAI(api_key = openai_key)
+            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
+            defaultMessage += f"Your name is Bot1 and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            print(f"{loaded_model} preloaded.")
+            return(loaded_model)
+        if model=="GPT-Mini":
+            global client, defaultMessage
+            loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm"
+            openai_key = os.getenv("OPENAPI_KEY")
+            client = OpenAI(api_key = openai_key)
+            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
+            defaultMessage += f"Your name is Bot1 and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            print(f"{loaded_model} preloaded.")
+            return(loaded_model)
+        if model=="Gemini":
+            global conversation_gemini
+            loaded_model = "projects/903507590578/locations/us-east1/endpoints/2611933852246999040"
+            vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
+            client = GenerativeModel(loaded_model)
+            conversation_gemini = client.start_chat()
+            print(f"{loaded_model} preloaded.")
+            return(loaded_model)
+            
+    else:
+        # ETC
+        loaded_model = ""
+        print("Default model preloaded.")
+
+def get_ml_response(user_message):
+    if not loaded_model:
+        return "Model is not loaded. Please load the model first."
+
+    print("Getting input")
+    
+    gpts=["ft:gpt-4o-2024-08-06:personal::AYGKLhoP","ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ","ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm"]
+    geminis=["projects/903507590578/locations/us-east1/endpoints/4254410710097854464","projects/903507590578/locations/us-east1/endpoints/7719015829685141504"]
+    if loaded_model in gpts:
+        try: 
+            completion = client.chat.completions.create(
+                model = loaded_model,
+                messages=[
+                    {"role":"system",'content':defaultMessage},
+                    {'role':'user','content':user_message}
+                ]
+            ) 
+            return completion.choices[0].message.content
+        
+        except Exception as e:
+            return f"Error generating response: {str(e)}"
+    
+    if loaded_model in geminis:
+        try:
             generation_config = {
                 "max_output_tokens": 8192,
                 "temperature": 0.5,
@@ -52,43 +121,6 @@ def load_ml_model(character,model):
                     threshold=SafetySetting.HarmBlockThreshold.OFF
                 ),
             ]
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-            
-        if model=="Llama":
-            print("bleh")
-
-    elif character == "Model 2":
-        # ETC
-        loaded_model = ""
-        print(f"{loaded_model} preloaded.")
-    else:
-        # ETC
-        loaded_model = ""
-        print("Default model preloaded.")
-
-def get_ml_response(user_message):
-    if not loaded_model:
-        return "Model is not loaded. Please load the model first."
-
-    print("Getting input")
-    
-    if loaded_model == "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ":
-        try: 
-            completion = client.chat.completions.create(
-                model = loaded_model,
-                messages=[
-                    {"role":"system",'content':defaultMessage},
-                    {'role':'user','content':user_message}
-                ]
-            ) 
-            return completion.choices[0].message.content
-        
-        except Exception as e:
-            return f"Error generating response: {str(e)}"
-    
-    if loaded_model == "projects/903507590578/locations/us-east1/endpoints/4254410710097854464":
-        try:
             response = conversation_gemini.send_message(
                 content = user_message,
                 generation_config=generation_config,

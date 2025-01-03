@@ -1,15 +1,12 @@
 
 import json
 
-def generateJSON(df,type,name):
-    
-    
-    
-    
+def generateJSON(df,type,name=None):
     
     defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
     defaultMessage+=f" Your name is Bot1 and your age is between {df['AgeRange'][0]} with the mental illness: {df['MentalIllness'][0]}"
-    
+    if name==None:
+        return defaultMessage
     if (type.lower()=="chatgpt"):
         with open(f"{name}.json", "w") as outfile:
             outfile.write("")

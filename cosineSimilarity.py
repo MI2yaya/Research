@@ -9,19 +9,19 @@ from openai import OpenAI
 from generateJSON import generateJSON
 import random
 import vertexai
-from vertexai.generative_models import GenerativeModel, Part, SafetySetting
+from vertexai.generative_models import GenerativeModel
 import time
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
-
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model = BertModel.from_pretrained('bert-base-uncased')
+bertTokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+bertModel = BertModel.from_pretrained('bert-base-uncased')
 
 random.seed(42)
 
 def getEmbeddings(text):
-    inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
+    inputs = bertTokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
     with torch.no_grad():
-        outputs = model(**inputs)
+        outputs = bertModel(**inputs)
     return outputs.last_hidden_state.squeeze(0).numpy()
 
 def metrics(modelOutput,dfMessage):
@@ -45,7 +45,7 @@ def metrics(modelOutput,dfMessage):
 
 
 
-df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
+df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-10-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
 
 load_dotenv()
 
@@ -61,13 +61,23 @@ def testing(model):
     if model.lower()=="gemini":
         vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
         gemini = GenerativeModel(
-            "projects/903507590578/locations/us-east1/endpoints/4254410710097854464"
+            "projects/903507590578/locations/us-east1/endpoints/2611933852246999040"
         )
         generation_config = {
             "max_output_tokens": 8192,
             "temperature": 1
         }
-        chat = gemini.start_chat(response_validation=False)
+        geminiChat = gemini.start_chat(response_validation=False)
+        
+    if model.lower()=='llama':
+        model_name = "Llama-3.2-1B-T2"
+        model_path = f"results/{model_name}"
+
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        llamaModel = AutoModelForCausalLM.from_pretrained(model_path)
+
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
         
     cosSimList=[]
     softCosSimList=[]
@@ -83,18 +93,17 @@ def testing(model):
         #model dependent
         if model.lower()=='chatgpt':
             completion = client.chat.completions.create(
-                model = "ft:gpt-4o-2024-08-06:personal::AYGKLhoP",
+                model = "ft:gpt-4o-2024-08-06:personal::AlR6KFIV",
                 messages=[
                     {"role":"system",'content':chatGPT4oDefaultMessage},
                     {'role':'user','content':msg}
                 ]
             )
             modelOutput = completion.choices[0].message.content
-        #add gemini, llama
         if model.lower()=='gemini':
             try:
-                response = chat.send_message(
-                    content=msg,
+                response = geminiChat.send_message(
+                    msg,
                     generation_config = generation_config
                 )
                 modelOutput = response.text
@@ -102,8 +111,21 @@ def testing(model):
                 print("err")
                 error=True
             except Exception as e:
+                print(e)
                 error=True
-                time.sleep(5)
+                time.sleep(15)
+        if model.lower()=='llama':
+            try:
+                inputs = tokenizer(msg,return_tensors="pt",padding=True,truncation=True)
+                response = llamaModel.generate(
+                    input_ids = inputs["input_ids"],
+                    attention_mask=inputs["attention_mask"],
+                    max_length=100
+                )
+                modelOutput = tokenizer.decode(response[0], skip_special_tokens=True)
+            except Exception as e:
+                print(f"ERRRR: {e}")
+                
         if not error:
             print("Response:", modelOutput)
             cosSim,softCosSim=metrics(modelOutput,output)

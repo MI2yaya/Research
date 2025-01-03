@@ -26,7 +26,7 @@ def upload(bucket_name, source_file_name, destination_blob_name):
     
     print(f"File {source_file_name} uploaded to {destination_blob_name}.")
 
-df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-2-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
+df = pd.read_csv(os.path.join('processedData','Manual-BB3-Session-10-Annotated-Transcript-Final.csv'),usecols=["ID","MentalIllness","AgeRange",'ClientText',"TherapistText"])
 
 train_df, eval_df = train_test_split(df, test_size=0.2, random_state=42)  # 80-20 split
 train_df = train_df.reset_index(drop=True)
@@ -45,14 +45,15 @@ upload(
     source_file_name="gemini-fine-tune-eval.jsonl",
     destination_blob_name="gemini-fine-tune-eval.jsonl"
 )
+'''
 
-
-generateJSON(df, "vertex", "gemini-fine-tune-all")
+generateJSON(df, "vertex", "gemini-fine-tune-all-2")
 upload(
     bucket_name="gemini-fine-tuning-bucket",
-    source_file_name="gemini-fine-tune-all.jsonl",
-    destination_blob_name="gemini-fine-tune-all.jsonl"
+    source_file_name="gemini-fine-tune-all-2.jsonl",
+    destination_blob_name="gemini-fine-tune-all-2.jsonl"
 )
+'''
 vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
 
 sft_tuning_job = sft.train(
@@ -65,8 +66,8 @@ sft_tuning_job = sft.train(
 vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
 sft_tuning_job = sft.train(
     source_model="gemini-1.5-pro-002",
-    train_dataset="gs://gemini-fine-tuning-bucket/gemini-fine-tune-all.jsonl",
-    tuned_model_display_name="tuned_gemini_1_5_pro_8",
+    train_dataset="gs://gemini-fine-tuning-bucket/gemini-fine-tune-all-2.jsonl",
+    tuned_model_display_name="tuned_gemini_1_5_pro_1-2",
     learning_rate_multiplier=2.0
 )
 
