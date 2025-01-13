@@ -1,4 +1,5 @@
 let loadedModel = null;
+let debounceTimeout = null;
 
 const BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000' : 'https://ai-psychotherapy-training-deployment.onrender.com';
 
@@ -38,44 +39,52 @@ function preloadModel() {
 
 // Function to send a message to the model
 function sendMessage() {
-    let userInput = document.getElementById('user-input').value;
-    if (userInput) {
-        if (!loadedModel) {
-            console.error("Model not loaded. Please preload the model first."); // If model not loaded
-            return;
-        }
-
-        appendMessage('user', userInput);
-        const fullChatHistory = generateChatHistory(); // generate after appending
-
-        console.log(fullChatHistory);
-
-        fetch(`${BASE_URL}/api/send-message`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: fullChatHistory }),  
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.response) {
-                console.log("Bot response:", data.response);
-                appendMessage('bot', data.response);  // Display the bot's response in your UI
-            } else if (data.error) {
-                console.error("Error processing message:", data.error);
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        let userInput = document.getElementById('user-input').value;
+        if (userInput) {
+            if (!loadedModel) {
+                console.error("Model not loaded. Please preload the model first."); // If model not loaded
+                return;
             }
-        })
-        .catch(error => console.error("Error:", error));
-    }
+
+            appendMessage('user', userInput);
+            document.getElementById('user-input').value = '';
+            const fullChatHistory = generateChatHistory(); // generate after appending
+
+            console.log(fullChatHistory);
+
+            fetch(`${BASE_URL}/api/send-message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: fullChatHistory }),  
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    console.log("Bot response:", data.response);
+                    appendMessage('bot', data.response);  // Display the bot's response in your UI
+                } else if (data.error) {
+                    console.error("Error processing message:", data.error);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    }, 300);
 }
 
 // Function to append a message to the UI
 function appendMessage(sender, text) {
-    let messageContainer = document.createElement('div');
-    messageContainer.classList.add('message', `${sender}-message`);  // Corrected string interpolation
-    messageContainer.textContent = `${sender.charAt(0).toUpperCase() + sender.slice(1)}: ${text}`;  // Corrected string interpolation
+    const messageContainer = document.createElement('div');
+    const chatContainer = document.getElementById('chatbox')
+    messageContainer.classList.add('message', `${sender}-message`);
+    messageContainer.textContent = `${sender.charAt(0).toUpperCase() + sender.slice(1)}: ${text}`;
+
     document.getElementById('messages').appendChild(messageContainer);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
 // Function to generate chat history from UI

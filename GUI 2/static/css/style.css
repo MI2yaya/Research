@@ -5,11 +5,13 @@
     box-sizing: border-box;
 }
 
+:root {
+    font-size: clamp(16px, calc(1rem + 0.5vw), 24px);
+}
+
 html,body{
     scroll-behavior: smooth;
-    overflow-y: scroll;
     font-family: sans-serif;
-    font-size: 16px;
     height: 100%;
 }
 
@@ -42,7 +44,6 @@ nav{
 }
 .container{
     margin: auto;
-    font-size: calc(1rem + 1vw);
 }
 .words{
     margin: 50px;
@@ -70,7 +71,7 @@ nav{
     position: relative;
     bottom: 0;
     border-top: 2px solid #ddd;
-  }
+}
 
   /* Style the header link */
 .header-link {
@@ -201,20 +202,25 @@ nav{
 
 
 /* Chat */
-#chat{
-    background-color: #ffffff;
-    width: 100vw; /* 50% of the viewport width */
-    height: 100vh; /* 50% of the viewport height */
+#chat {
+    background-color: white;
+    border-left: 2px solid #ccc; /* Border on the left */
+    border-right: 2px solid #ccc; /* Border on the right */
+    width: 50%; /* 50% of the viewport width */
+    height: 100%; /* Full height of the viewport */
     display: flex;
     flex-direction: column;
     align-self: center;
-    
+    overflow: hidden; /* Prevent page scrolling, only chat scrolls */
+    position: relative;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for a nicer look */
+    border-radius: 10px; /* Rounded corners for a polished design */
 }
 #chatbox {
-    padding: 20px;
+    padding: 1.25rem;
     overflow-y: auto;
-    border-bottom: 1px solid #eee;
-    flex: 1;
+    border-bottom: 1px solid #ccc;
+    flex-grow: 1; /* Allows chatbox to expand and scroll */
 }
 
 #messages {
@@ -226,12 +232,13 @@ nav{
 }
 
 .message {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
+    padding: 0.625rem; /* Relative padding for messages */
+    border-radius: 0.3125rem;
+    margin-bottom: 0.3125rem;
     max-width: 80%;
     word-wrap: break-word;
     box-sizing: border-box;
+    font-size: 1rem; /* Slightly smaller text for messages */
 }
 
 .user-message {
@@ -255,9 +262,9 @@ nav{
 }
 
 #user-input {
-    font-size: 18px;
     flex: 1;
-    padding: 10px;
+    font-size: 1rem;
+    padding: 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
     margin-right: 10px;
@@ -265,7 +272,8 @@ nav{
 
 button {
     margin: 10px;
-    padding: 10px 15px;
+    font-size: 1rem;
+    padding: 15px 15px;
     border: none;
     background-color: #1890ff;
     color: white;
