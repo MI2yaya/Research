@@ -18,7 +18,9 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Bot1 and your age is between 65 with the mental illness: Major Depressive Disorder"
+            defaultMessage += f"Your name is Abe and your age is between 65 with the mental illness: Major Depressive Disorder."
+            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
+            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="GPT-Mini":
@@ -26,7 +28,9 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Bot1 and your age is between 65 with the mental illness: Major Depressive Disorder"
+            defaultMessage += f"Your name is Abe and your age is between 65 with the mental illness: Major Depressive Disorder."
+            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
+            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="Gemini":
@@ -44,7 +48,9 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Bot1 and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            defaultMessage += f"Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
+            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="GPT-Mini":
@@ -52,7 +58,9 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Bot1 and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            defaultMessage += f"Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder"
+            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
+            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
             return(loaded_model)
         if model=="Gemini":
@@ -85,7 +93,7 @@ def get_ml_response(user_message):
                     {'role':'user','content':user_message}
                 ]
             ) 
-            return completion.choices[0].message.content
+            generatedMessage = completion.choices[0].message.content
         
         except Exception as e:
             return f"Error generating response: {str(e)}"
@@ -120,6 +128,12 @@ def get_ml_response(user_message):
                 generation_config=generation_config,
                 safety_settings=safety_settings
             )
-            return(response.text)
+            generatedMessage = response.text
         except Exception as e:
             return f"Error generating response: {str(e)}"
+    
+    if generatedMessage.lower().startswith("patient: "):
+        generatedMessage = generatedMessage[len("patient: "):]
+    if generatedMessage.lower().startswith("abe: "):
+        generatedMessage = generatedMessage[len("abe: "):]
+    return(generatedMessage)

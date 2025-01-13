@@ -47,10 +47,19 @@ function sendMessage() {
                 console.error("Model not loaded. Please preload the model first."); // If model not loaded
                 return;
             }
+            
+            var inputField = document.getElementById("user-input");
+            var sendButton = document.getElementById("send-button");
+            
 
-            appendMessage('user', userInput);
+            inputField.disabled = true;
+            sendButton.disabled = true;
+
+            appendMessage('Therapist', userInput);
+            const fullChatHistory = generateChatHistory(); // dont include . . .
+            appendMessage('Patient',". . .",true);
+
             document.getElementById('user-input').value = '';
-            const fullChatHistory = generateChatHistory(); // generate after appending
 
             console.log(fullChatHistory);
 
@@ -65,21 +74,43 @@ function sendMessage() {
             .then(data => {
                 if (data.response) {
                     console.log("Bot response:", data.response);
-                    appendMessage('bot', data.response);  // Display the bot's response in your UI
+                    appendMessage('Patient', data.response);  // Display the bot's response in your UI
+
+                    inputField.disabled = false;
+                    sendButton.disabled = false;
+
+                    document.getElementById("filler")?.remove(); 
+
                 } else if (data.error) {
                     console.error("Error processing message:", data.error);
+
+                    inputField.disabled = false;
+                    sendButton.disabled = false;
+
+                    document.getElementById("filler")?.remove(); 
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                inputField.disabled = false;
+                sendButton.disabled = false;
+
+                document.getElementById("filler")?.remove(); 
+            });
         }
     }, 300);
 }
 
 // Function to append a message to the UI
-function appendMessage(sender, text) {
+function appendMessage(sender, text, filler=false) {
     const messageContainer = document.createElement('div');
     const chatContainer = document.getElementById('chatbox')
-    messageContainer.classList.add('message', `${sender}-message`);
+    if(filler){
+        messageContainer.classList.add('message', `${sender}-message`,"filler")
+        messageContainer.id="filler"
+    }else{
+        messageContainer.classList.add('message', `${sender}-message`);
+    }
     messageContainer.textContent = `${sender.charAt(0).toUpperCase() + sender.slice(1)}: ${text}`;
 
     document.getElementById('messages').appendChild(messageContainer);
@@ -91,7 +122,7 @@ function appendMessage(sender, text) {
 function generateChatHistory() {
     const messagesContainer = document.getElementById('messages');
     const messageElements = messagesContainer.getElementsByClassName('message');
-    let chatHistory = "System: This is a conversation with a new therapist, do not refer to previous therapy sessions.\n";
+    let chatHistory = "System: This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions.\n";
 
     for (let messageElement of messageElements) {
         

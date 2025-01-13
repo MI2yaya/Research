@@ -236,13 +236,13 @@ nav{
     font-size: 1rem; /* Slightly smaller text for messages */
 }
 
-.user-message {
+.Therapist-message {
     background-color: #d9f7be;
     align-self: flex-start;
     border: 1px solid #b7eb8f;
 }
 
-.bot-message {
+.Patient-message {
     background-color: #e6f7ff;
     align-self: flex-end;
     border: 1px solid #91d5ff;
