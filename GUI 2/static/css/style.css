@@ -117,11 +117,6 @@ nav{
     margin-top: 10px;
 }
 
-#submitContainer {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
 .modelButton {
     align-items: center;
     padding: 10px 20px;
