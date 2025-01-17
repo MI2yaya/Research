@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<div id="header"></div>
+
+<body>
+    <div id="abstract">
+        <h1>Abstract</h1>
+        <p>&emsp;Psychotherapists in training lack a standardized and formalized method of patient interaction for proper development of empathy, communication, and experience. Currently, training involves residents practicing with each other, where one acts as the patient and one as the psychotherapist, or with simulated patients -actors who replicate patient scenarios. Both methods have shortcomings in availability, reliability, and the accuracy in replicating real scenarios. This project attempted to create virtual patients by utilizing online patient transcripts through the fine-tuning of three modern Artificial Intelligence models, ChatGPT-4o, LlaMa-3.1v-405B, and Gemini 1.5 Pro; as well as their miniature versions where applicable. A website interface was created to interact with the fine-tuned models for evaluation. The accuracy of the models was determined using cosine similarities to measure semantic relation between data and model outputs, ranging from 93.3% to 83.11% , with ChatGPT-4o Mini achieving the highest accuracy. These findings highlight the potential for virtual patients to serve as a more accessible, reliable, and effective training method for residents. Further evaluation and continual refinement remain necessary to address current limitations.</p>
+    </div>
+</body>
+
+<div id="footer"></div>
+
+<script src="{{ url_for('static', filename='JS/loadTemplates.js') }}" defer></script>
+
+</html>

@@ -25,6 +25,10 @@ def chatBot():
 def contact():
     return render_template('contact.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 # Route to preload the model
 @app.route('/api/preload-model', methods=['POST'])
 def preload_model():
