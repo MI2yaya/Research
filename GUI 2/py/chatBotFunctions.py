@@ -4,89 +4,156 @@ from openai import OpenAI
 import os
 import vertexai
 from vertexai.generative_models import GenerativeModel, SafetySetting
-from flask import Flask, jsonify, request
+from flask import jsonify, request
 import traceback
+import pandas as pd
 
 load_dotenv()
 
 # Global variable to store the loaded model
 loaded_model = None
 
-def load_ml_model(character,model):
-    global loaded_model, client, defaultMessage, conversation_gemini
-    if character == "Model 1":
-        if model=="GPT":
-            loaded_model = "ft:gpt-4o-2024-08-06:personal::AYGKLhoP"
-            openai_key = os.getenv("OPENAPI_KEY")
-            client = OpenAI(api_key = openai_key)
-            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is 65 with the mental illness: Major Depressive Disorder."
-            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
-            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-        if model=="GPT-Mini":
-            loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ"
-            openai_key = os.getenv("OPENAPI_KEY")
-            client = OpenAI(api_key = openai_key)
-            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is  65 with the mental illness: Major Depressive Disorder."
-            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
-            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-        if model=="Gemini":
-            loaded_model = "projects/903507590578/locations/us-east1/endpoints/4254410710097854464"
-            vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
-            client = GenerativeModel(loaded_model)
-            conversation_gemini = client.start_chat()
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-            
+def load_csv_transcript(csv_file_path):
+    """
+    Reads a CSV file and formats the contents into a single text string.
+    This text will be used as the default message for the simulated patient.
+    """
+    transcript = f"Attatched is a transcription of a therapy session as the patient, you are to replicate the behavior of the individual and represent their characteristics. This is to be used as a training tool.\n"
+    try:
+        # Read the CSV file using pandas (it will automatically handle encoding issues)
+        df = pd.read_csv(csv_file_path, encoding='utf-8')  # You can change encoding if necessary
+        
+        # Check if the expected columns are in the DataFrame
+        if 'MentalIllness' in df.columns and 'AgeRange' in df.columns:
+            transcript += f"Name: Abe\nMental Illness: {df['MentalIllness'].iloc[0]}\nAge Range: {df['AgeRange'].iloc[0]}\n"
+        
+        # Iterate through the rows of the DataFrame to build the transcript
+        for index, row in df.iterrows():
+            client_text = row.get('ClientText', '').strip()
+            therapist_text = row.get('TherapistText', '').strip()
 
-    elif character == "Model 2":
-        if model=="GPT":
-            loaded_model = "ft:gpt-4o-2024-08-06:personal::AlR6KFIV"
-            openai_key = os.getenv("OPENAPI_KEY")
-            client = OpenAI(api_key = openai_key)
-            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder"
-            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
-            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-        if model=="GPT-Mini":
-            loaded_model = "ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm"
-            openai_key = os.getenv("OPENAPI_KEY")
-            client = OpenAI(api_key = openai_key)
-            defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder"
-            defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
-            defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
-        if model=="Gemini":
-            loaded_model = "projects/903507590578/locations/us-east1/endpoints/2611933852246999040"
-            vertexai.init(project=os.getenv("GOOGLE_PROJECT"),location="us-east1")
-            client = GenerativeModel(loaded_model)
-            conversation_gemini = client.start_chat()
-            print(f"{loaded_model} preloaded.")
-            return(loaded_model)
+            # Add patient and therapist conversation to the transcript
+            if client_text:
+                transcript += f"Patient: {client_text}\n"
+            if therapist_text:
+                transcript += f"Therapist: {therapist_text}\n\n"
+
+        return transcript
+
+    except Exception as e:
+        print(f"Error reading CSV: {e}")
+        return ""
+
+
+def load_ml_model(character,tuned,model):
+    global loaded_model, client, defaultMessage
+    model_configs = {
+        "Model 1": {
+            'true':{
+                "GPT": {
+                    "loaded_model": "ft:gpt-4o-2024-08-06:personal::AYGKLhoP",
+                    "default_message": "You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists. Your name is Abe and your age is 65 with the mental illness: Major Depressive Disorder. This is a virtual therapy session with a new therapist, however, your personal experiences are the same. This is a conversation with a new therapist, do not refer to prior sessions."
+                },
+                "GPT-Mini": {
+                    "loaded_model": "ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ",
+                    "default_message": "You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists. Your name is Abe and your age is 65 with the mental illness: Major Depressive Disorder. This is a virtual therapy session with a new therapist, however, your personal experiences are the same. This is a conversation with a new therapist, do not refer to prior sessions."
+                },
+                "Gemini": {
+                    "loaded_model": "projects/903507590578/locations/us-east1/endpoints/4254410710097854464",
+                    "client_init": lambda: vertexai.init(project=os.getenv("GOOGLE_PROJECT"), location="us-east1"),
+                    "conversation_init": lambda: GenerativeModel("projects/903507590578/locations/us-east1/endpoints/4254410710097854464").start_chat()
+                }
+            },
+            'false':{
+                "GPT": {
+                    "loaded_model": "gpt-4o",
+                    "transcript_file": "transcripts/model_1.csv"
+                },
+                "GPT-Mini": {
+                    "loaded_model": "gpt-4o-mini",
+                    "transcript_file": "transcripts/model_1.csv"
+                },
+                "Gemini":{
+                    "loaded_model": "FigreThisOut!!!",
+                    "transcript_file": "transcripts/model_1.csv"
+                }
+            }
+        },
+        "Model 2": {
+            'true':{
+                "GPT": {
+                    "loaded_model": "ft:gpt-4o-2024-08-06:personal::AlR6KFIV",
+                    "default_message": "You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists. Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder. This is a virtual therapy session with a new therapist, however, your personal experiences are the same. This is a conversation with a new therapist, do not refer to prior sessions."
+                },
+                "GPT-Mini": {
+                    "loaded_model": "ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm",
+                    "default_message": "You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists. Your name is Abe and your age is 50 with the mental illness: Generalized Anxiety Disorder. This is a virtual therapy session with a new therapist, however, your personal experiences are the same. This is a conversation with a new therapist, do not refer to prior sessions."
+                },
+                "Gemini": {
+                    "loaded_model": "projects/903507590578/locations/us-east1/endpoints/2611933852246999040",
+                    "client_init": lambda: vertexai.init(project=os.getenv("GOOGLE_PROJECT"), location="us-east1"),
+                    "conversation_init": lambda: GenerativeModel("projects/903507590578/locations/us-east1/endpoints/2611933852246999040").start_chat()
+                }
+            },
+            'false':{
+                "GPT": {
+                    "loaded_model": "gpt-4o",
+                    "transcript_file": "transcripts/model_2.csv"
+                },
+                "GPT-Mini": {
+                    "loaded_model": "gpt-4o-mini",
+                    "transcript_file": "transcripts/model_2.csv"
+                },
+                "Gemini":{
+                    "loaded_model": "FigreThisOut!!!",
+                    "transcript_file": "transcripts/model_2.csv"
+                }
+            }
+        }
+    }
+
+    # Check if the character and model are valid
+    if character in model_configs and tuned in model_configs[character] and model in model_configs[character][tuned]:
+        config = model_configs[character][tuned][model]
+
+        # Initialize the model based on the configuration
+        loaded_model = config["loaded_model"]
+        if "client_init" in config:
+            config['init_client']
+        elif "GPT" in model or "GPT-Mini" in model:
+            client = OpenAI(api_key=os.getenv("OPENAPI_KEY"))
             
+        if "conversation_init" in config:
+            global conversation_gemini
+            conversation_gemini = config["conversation_init"]()
+
+
+        if "transcript_file" in config:
+            # Read the CSV file and set as default_message
+            transcript_path = config["transcript_file"]
+            defaultMessage = load_csv_transcript(transcript_path)
+            print(defaultMessage)
+        else:
+            # For tuned models, use the predefined default_message
+            defaultMessage = config["default_message"]
+
+        print(f"{loaded_model} preloaded.")
+        return loaded_model
     else:
-        # ETC
-        loaded_model = ""
-        print("Default model preloaded.")
+        print("Model not found.")
+        return ""
 
 def preload_model():
-    global loaded_model
+    global loaded_model, model
+    print("preloading...")
     try:
         data = request.get_json()
         character = data['character']
         model = data['model']
+        tuned = data['tuned']
         
         # Load the model and store it in the global variable
-        loaded_model = load_ml_model(character,model)
+        loaded_model = load_ml_model(character,tuned,model)
         return jsonify({
             "message": f"Model {loaded_model} preloaded successfully",
             "model": loaded_model
@@ -104,23 +171,17 @@ def get_ml_response(user_message):
 
     print("Getting input")
     
-    gpts=["ft:gpt-4o-2024-08-06:personal::AYGKLhoP","ft:gpt-4o-mini-2024-07-18:personal::AJSd1eeZ","ft:gpt-4o-mini-2024-07-18:personal::AlQaBHUm"]
-    geminis=["projects/903507590578/locations/us-east1/endpoints/4254410710097854464","projects/903507590578/locations/us-east1/endpoints/7719015829685141504"]
-    if loaded_model in gpts:
-        try: 
+     # Short-circuit to get response based on loaded model type
+    if model.startswith("GPT"):
+        try:
             completion = client.chat.completions.create(
-                model = loaded_model,
-                messages=[
-                    {"role":"system",'content':defaultMessage},
-                    {'role':'user','content':user_message}
-                ]
-            ) 
+                model=loaded_model,
+                messages=[{"role": "system", 'content': defaultMessage}, {'role': 'user', 'content': user_message}]
+            )
             generatedMessage = completion.choices[0].message.content
-        
         except Exception as e:
             return f"Error generating response: {str(e)}"
-    
-    if loaded_model in geminis:
+    elif model.startswith("GEMINI"):
         try:
             generation_config = {
                 "max_output_tokens": 8192,
@@ -128,31 +189,22 @@ def get_ml_response(user_message):
             }
 
             safety_settings = [
-                SafetySetting(
-                    category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                    threshold=SafetySetting.HarmBlockThreshold.OFF
-                ),
-                SafetySetting(
-                    category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                    threshold=SafetySetting.HarmBlockThreshold.OFF
-                ),
-                SafetySetting(
-                    category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                    threshold=SafetySetting.HarmBlockThreshold.OFF
-                ),
-                SafetySetting(
-                    category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
-                    threshold=SafetySetting.HarmBlockThreshold.OFF
-                ),
+                SafetySetting(category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold=SafetySetting.HarmBlockThreshold.OFF),
+                SafetySetting(category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold=SafetySetting.HarmBlockThreshold.OFF),
+                SafetySetting(category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold=SafetySetting.HarmBlockThreshold.OFF),
+                SafetySetting(category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=SafetySetting.HarmBlockThreshold.OFF)
             ]
             response = conversation_gemini.send_message(
-                content = user_message,
+                content=user_message,
                 generation_config=generation_config,
                 safety_settings=safety_settings
             )
             generatedMessage = response.text
         except Exception as e:
             return f"Error generating response: {str(e)}"
+    else:
+        return "Invalid model type."
+
     
     if generatedMessage.lower().startswith("patient: "):
         generatedMessage = generatedMessage[len("patient: "):]

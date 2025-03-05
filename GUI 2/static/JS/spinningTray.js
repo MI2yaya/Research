@@ -14,6 +14,7 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const submitBtn = document.getElementById('submitBtn');
 const itemForm = document.getElementById('itemForm');
+const tunedCheckbox = document.getElementById("tunedCheckbox");
 
 // Function to update the item display
 function updateItemDisplay() {
@@ -62,7 +63,8 @@ submitBtn.addEventListener('click', () => {
 
     // Redirect to chatBot.html with the selected item as a query parameter
     const selectedItem = document.getElementById("selectedItem").value;
-    window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}&selectedModel=${encodeURIComponent(selectedModel)}`;
+    const tuned = tunedCheckbox.checked;
+    window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}&selectedModel=${encodeURIComponent(selectedModel)}&tuned=${encodeURIComponent(tuned)}`;
 });
 
 // Function to update the hidden input value
