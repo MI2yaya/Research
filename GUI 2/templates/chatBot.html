@@ -18,10 +18,14 @@
             <!-- Messages will appear here -->
         </div>
     </div>
+    <div id='close-screen'>
+        <button class="saveRecordButton" onclick="window.saveRecordedSession()">Save Recording</button>
+        <button class="saveCSVButton" onclick="window.saveChat()">Save CSV</button>
+    </div>
     <div id="user">
         <input type="text" id="user-input" placeholder="Type your message here...">
         <button id="send-button" onclick="sendMessage()">Send</button>
-        <button onclick="startRecording()">Record</button>
+        <button id="record-button" onclick="recordMessage()">Record</button>
     </div>
 </div>
 
@@ -31,4 +35,10 @@
 
 <script src="{{ url_for('static', filename='JS/loadTemplates.js') }}" defer></script>
 <script src="{{ url_for('static', filename='JS/chatBot.js') }}" defer></script>
+
+
+
+<script src="{{ url_for('static', filename='JS/rrweb.umd.min.js') }}" defer></script>
+<script src="{{ url_for('static', filename='JS/rrwebRecorder.js') }}" defer></script>
+
 </html>

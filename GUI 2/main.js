@@ -1,6 +1,7 @@
 //npx electron-packager . MyApp --platform=win32 --arch=x64
 // to make .exe
 // npm start
+// run local with flask run, and then run app.py
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 

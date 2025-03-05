@@ -4,6 +4,8 @@ from openai import OpenAI
 import os
 import vertexai
 from vertexai.generative_models import GenerativeModel, SafetySetting
+from flask import Flask, jsonify, request
+import traceback
 
 load_dotenv()
 
@@ -18,7 +20,7 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is between 65 with the mental illness: Major Depressive Disorder."
+            defaultMessage += f"Your name is Abe and your age is 65 with the mental illness: Major Depressive Disorder."
             defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
             defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
@@ -28,7 +30,7 @@ def load_ml_model(character,model):
             openai_key = os.getenv("OPENAPI_KEY")
             client = OpenAI(api_key = openai_key)
             defaultMessage = f"You are a factual chatbot which aims to replicate a simulated patient for use in training residents to become psychotherapists."
-            defaultMessage += f"Your name is Abe and your age is between 65 with the mental illness: Major Depressive Disorder."
+            defaultMessage += f"Your name is Abe and your age is  65 with the mental illness: Major Depressive Disorder."
             defaultMessage += f"This is a virtual therapy session with a new therapist, however, your personal experiences are the same."
             defaultMessage += f"This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions."
             print(f"{loaded_model} preloaded.")
@@ -75,6 +77,26 @@ def load_ml_model(character,model):
         # ETC
         loaded_model = ""
         print("Default model preloaded.")
+
+def preload_model():
+    global loaded_model
+    try:
+        data = request.get_json()
+        character = data['character']
+        model = data['model']
+        
+        # Load the model and store it in the global variable
+        loaded_model = load_ml_model(character,model)
+        return jsonify({
+            "message": f"Model {loaded_model} preloaded successfully",
+            "model": loaded_model
+            })
+    except Exception as e:
+        # Capture and log the exception
+        error_message = str(e)
+        traceback_str = traceback.format_exc()
+        print(f"Error preloading model: {error_message}\n{traceback_str}")
+        return jsonify({"error": f"Failed to preload model: {error_message}"}), 500
 
 def get_ml_response(user_message):
     if not loaded_model:
@@ -137,3 +159,30 @@ def get_ml_response(user_message):
     if generatedMessage.lower().startswith("abe: "):
         generatedMessage = generatedMessage[len("abe: "):]
     return(generatedMessage)
+
+def send_message():
+    global loaded_model
+    try:
+        data = request.get_json()
+        user_message = data['message']
+
+        print("waiting..")
+        print(user_message)
+         
+        # Check if a model has been loaded
+        if not loaded_model:
+            raise ValueError("Model not loaded. Please preload a model first.")
+
+        # Pass the user's message to the loaded ML model and get a response
+        bot_response = get_ml_response(user_message)
+        print(bot_response)
+        if bot_response[:4].lower()=="bot:":
+            bot_response=bot_response[4:]
+        print("its alive ",bot_response)
+        return jsonify({"response": bot_response})
+    except Exception as e:
+        # Capture and log the exception
+        error_message = str(e)
+        traceback_str = traceback.format_exc()
+        print(f"Error processing message: {error_message}\n{traceback_str}")
+        return jsonify({"error": f"Failed to process message: {error_message}"}), 500

@@ -1,4 +1,6 @@
 // Function to load an HTML file and insert it into an element
+const BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000' : 'https://ai-psychotherapy-training-deployment.onrender.com';
+
 function loadHTML(url, elementId) {
     fetch(url)
       .then(response => {

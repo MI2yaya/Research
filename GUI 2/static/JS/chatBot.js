@@ -1,8 +1,6 @@
 let loadedModel = null;
 let debounceTimeout = null;
-
-const BASE_URL = window.location.hostname === '127.0.0.1' ? 'http://127.0.0.1:5000' : 'https://ai-psychotherapy-training-deployment.onrender.com';
-
+let recognition;
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
@@ -99,6 +97,81 @@ function sendMessage() {
             });
         }
     }, 300);
+}
+
+// Function to record user voice
+function recordMessage(){
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        if (!loadedModel) {
+            console.error("Model not loaded. Please preload the model first."); // If model not loaded
+            return;
+        }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+        if (!SpeechRecognition) {
+            alert("Your browser does not support speech recognition.");
+            return;
+        }
+
+        let chatInput = document.getElementById('user-input');
+        const recordButton = document.getElementById("record-button");
+
+        if(recordButton.classList.contains("listening")){
+            if(recognition) recognition.stop();
+            recordButton.textContent = "Record";
+            recordButton.classList.remove("listening");
+            console.log("user stopped");
+        }else{
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = "en-US";
+
+            recognition.onresult = function (event) {
+                let transcript = "";
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript + " ";
+                }
+                chatInput.value = transcript.trim(); 
+                console.log("succeeded!", transcript);
+            };
+
+            recognition.onerror = recognition.onend = function (event) {
+                recordButton.textContent = "Record";
+                recordButton.classList.remove("listening");
+                console.error("Speech Recognition Error:", event.error);
+            };
+            recordButton.textContent = "Listening";
+            recordButton.classList.add("listening");
+            recognition.start();
+            console.log("started");
+        };
+    }, 300);
+}
+
+// Function to show close screen
+function showCloseScreen(){
+    document.getElementById("close-screen").classList.toggle("hidden");
+}
+
+//function to generate chat history as csv
+window.saveChat = function(){
+    let chatHistory = generateChatHistory();
+    let lines = chatHistory.split("\n");
+    let csvContent = "data:text/csv;charset=utf-8,Message\n";
+
+    lines.forEach(line => {
+        csvContent += `"${line.replace(/"/g, '""')}"\n`; // Escape quotes for CSV format
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "chat_history.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Function to append a message to the UI

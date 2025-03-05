@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "rrvideo": "^2.0.0-alpha.18",
+    "rrweb": "^2.0.0-alpha.4"
+  }
+}

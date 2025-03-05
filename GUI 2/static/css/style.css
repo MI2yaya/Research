@@ -9,11 +9,16 @@
     font-size: clamp(12px, calc(1rem + 0.5vw), 24px);
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 html,body{
     scroll-behavior: smooth;
     font-family: sans-serif;
     height: 100%;
-    min-width: 1000px;
+    min-width: 600px;
+    min-height: 400px;
     overflow-x: hidden;
 }
 
@@ -130,7 +135,17 @@ nav{
     transition: background-color 0.3s;
 }
 
-.modelButton.selected {
+
+.saveRecordButton, .saveCSVButton {
+    align-items: center;
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #cee4cf;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+
     background-color: #007bff;
     color: white;
     border-color: #0056b3;
@@ -214,18 +229,52 @@ nav{
     border-radius: 10px; /* Rounded corners for a polished design */
 }
 #chatbox {
+    position: relative;
     padding: 1.25rem;
     overflow-y: auto;
     border-bottom: 1px solid #ccc;
     flex-grow: 1; /* Allows chatbox to expand and scroll */
 }
 
+#close-button {
+    z-index: 10;
+    position: fixed;
+    top: 100px;
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
 #messages {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    
+    margin-top: 10px;
+}
+
+#close-screen { /* Work on this!!!! */
+    display: flex;
+    align-self: center;
+    height: 10%;
+    width: 100%;
+    justify-content: space-between;
+    background-color: white;
+}
+#close-screen-header {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0; /* Adds space around the title */
+    border-bottom: 1px solid #ddd; /* Optional: Adds a subtle separation */
+}
+#close-screen-forms {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
 }
 
 .message {
@@ -240,13 +289,13 @@ nav{
 
 .Therapist-message {
     background-color: #d9f7be;
-    align-self: flex-start;
+    align-self: flex-end;
     border: 1px solid #b7eb8f;
 }
 
 .Patient-message {
     background-color: #e6f7ff;
-    align-self: flex-end;
+    align-self: flex-start;
     border: 1px solid #91d5ff;
 }
 
@@ -281,6 +330,13 @@ button {
 
 button:hover {
     background-color: #40a9ff;
+}
+
+#record-button.listening{
+    background-color: red;
+}
+#record-button.listening:hover{
+    background-color: rgb(194, 0, 0);
 }
 
 

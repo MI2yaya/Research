@@ -10,6 +10,9 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "electron": "^33.0.1"
+    "electron": "^33.4.1"
+  },
+  "dependencies": {
+    "rrweb": "^2.0.0-alpha.4"
   }
 }

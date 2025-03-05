@@ -1,10 +1,10 @@
 #dont forget to run this
-
+#flask run
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS  # Import CORS
-from py.chatBotFunctions import load_ml_model, get_ml_response
-import traceback
 import os
+
+
 
 app = Flask(__name__)
 
@@ -29,56 +29,24 @@ def contact():
 def about():
     return render_template('about.html')
 
-# Route to preload the model
+from py.rrwebFunctions import delete_jsons, generate_events, save_json
+@app.route('/delete-jsons', methods=['POST'])
+def delete_jsons_route():
+    return delete_jsons()
+@app.route("/api/generate-video", methods=["POST"])
+def generate_events_route():
+    return generate_events()
+@app.route("/api/save-json", methods=["POST"])
+def save_json_route():
+    return save_json()
+
+from py.chatBotFunctions import preload_model, send_message
 @app.route('/api/preload-model', methods=['POST'])
-def preload_model():
-    global loaded_model
-    try:
-        data = request.get_json()
-        character = data['character']
-        model = data['model']
-        
-        # Load the model and store it in the global variable
-        loaded_model = load_ml_model(character,model)
-        return jsonify({
-            "message": f"Model {loaded_model} preloaded successfully",
-            "model": loaded_model
-            })
-    except Exception as e:
-        # Capture and log the exception
-        error_message = str(e)
-        traceback_str = traceback.format_exc()
-        print(f"Error preloading model: {error_message}\n{traceback_str}")
-        return jsonify({"error": f"Failed to preload model: {error_message}"}), 500
-
-# Route to send messages
+def preload_model_route():
+    return preload_model()
 @app.route('/api/send-message', methods=['POST'])
-def send_message():
-    global loaded_model
-    try:
-        data = request.get_json()
-        user_message = data['message']
-
-        print("waiting..")
-        print(user_message)
-         
-        # Check if a model has been loaded
-        if not loaded_model:
-            raise ValueError("Model not loaded. Please preload a model first.")
-
-        # Pass the user's message to the loaded ML model and get a response
-        bot_response = get_ml_response(user_message)
-        print(bot_response)
-        if bot_response[:4].lower()=="bot:":
-            bot_response=bot_response[4:]
-        print("its alive ",bot_response)
-        return jsonify({"response": bot_response})
-    except Exception as e:
-        # Capture and log the exception
-        error_message = str(e)
-        traceback_str = traceback.format_exc()
-        print(f"Error processing message: {error_message}\n{traceback_str}")
-        return jsonify({"error": f"Failed to process message: {error_message}"}), 500
+def send_message_route():
+    return send_message()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))  # Use PORT from environment or default to 5000
