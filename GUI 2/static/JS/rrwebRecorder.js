@@ -31,17 +31,34 @@ function save() {
 }
 
 
-
 setInterval(save, 10 * 1000);
 
 window.saveRecordedSession = function(){
-    fetch(`${BASE_URL}/api/generate-video`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId })
-    })
-    .then((response) => response.json())
-    .then((data) => console.log("Saved:", data))
-    .catch((error) => console.error("Error saving:", error));
-
+  fetch(`${BASE_URL}/api/generate-video`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId })
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    if (data.videoPath) {
+      alert("Video is ready! Click OK to download.");
+      
+      // Correct way to trigger a file download
+      fetch(`${BASE_URL}/download-video/${sessionId}`)
+        .then(response => response.blob())
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.style.display = "none";
+          a.href = url;
+          a.download = "session_recording.mp4";
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error("Error downloading video:", error));
+    }
+  })
+  .catch((error) => console.error("Error saving:", error));
 }

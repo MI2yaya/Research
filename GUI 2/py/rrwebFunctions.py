@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 import os
 import shutil
 import subprocess
 import os
 import json
+
+
 
 def delete_jsons():
     jsons_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "jsons"))    # Adjust path if needed
@@ -30,19 +32,30 @@ def generate_events():
         if not os.path.exists(merged_path):
             return jsonify({"error": "Merged events file not found"}), 404
 
-        #print(f"Session folder: {session_folder}")
-        #print(f"Merged JSON: {merged_path}")
+
         subprocess.run(["rrvideo", "--input", merged_path, "--output", output_video], 
                        check=True, 
                        stdout=subprocess.DEVNULL,
                        stderr=subprocess.STDOUT,
                        shell=True)
 
-        return jsonify({"message": "Video generated successfully", "videoPath": output_video})
+        if not os.path.exists(output_video):
+            return jsonify({"error": "Video file not found"}), 404
+
+        return jsonify({"message": "Video generated successfully", "videoPath": f"{output_video}"}), 200
 
     except Exception as e:
         print(f"ERROR: {str(e)}")  # Print the full error to console
         return jsonify({"error": str(e)}), 500
+
+def download_video(session_id):
+    session_folder = os.path.join("jsons", session_id)
+    output_video = os.path.join(session_folder, "output.mp4")
+
+    if not os.path.exists(output_video):
+        return jsonify({"error": "Video file not found"}), 404
+
+    return send_file(output_video, as_attachment=True, mimetype="video/mp4")
 
 def save_json():
     try:
