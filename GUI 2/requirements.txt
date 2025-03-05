@@ -53,16 +53,13 @@ idna==3.10
 importlib-resources==6.1.0
 intel-openmp==2021.4.0
 itsdangerous==2.2.0
-Jinja2 @ file:///C:/b/abs_ddyeze2h6_/croot/jinja2_1730903330414/work
 jiter==0.7.0
 joblib==1.4.2
 MarkupSafe==3.0.2
 mkl==2021.4.0
 mkl-fft==1.3.1
-mkl-random @ file:///C:/ci_311/mkl_random_1676481991689/work
 mkl-service==2.4.0
 ml_dtypes==0.5.0
-mpmath @ file:///C:/b/abs_7833jrbiox/croot/mpmath_1690848321154/work
 multidict==6.1.0
 multiprocess==0.70.16
 networkx==3.4.2
@@ -72,7 +69,6 @@ onnxscript==0.1.0.dev20241112
 openai==1.53.0
 packaging==24.2
 pandas==2.2.3
-pillow @ file:///C:/b/abs_2cm0qc1vxk/croot/pillow_1731594717982/work
 promise==2.3
 propcache==0.2.0
 proto-plus==1.25.0
@@ -87,7 +83,6 @@ pyparsing==3.2.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
-PyYAML @ file:///C:/b/abs_14xkfs39bx/croot/pyyaml_1728657968772/work
 regex==2024.9.11
 requests==2.32.3
 rsa==4.9
@@ -96,7 +91,6 @@ scikit-learn==1.5.2
 scipy==1.14.1
 sentencepiece==0.2.0
 shapely==2.0.6
-six @ file:///tmp/build/80754af9/six_1644875935023/work
 sniffio==1.3.1
 sympy==1.13.1
 tbb==2021.13.1
@@ -105,7 +99,6 @@ threadpoolctl==3.5.0
 tokenizers==0.13.3
 torch==2.5.1+cu118
 torchaudio==2.5.1+cu118
-torchvision @ file:///C:/b/abs_36wv6_sd88/croot/torchvision_1722956313919/work
 tqdm==4.66.6
 transformers==4.30.0
 typing_extensions==4.12.2
