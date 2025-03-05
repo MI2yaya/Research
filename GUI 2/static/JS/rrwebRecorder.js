@@ -25,7 +25,7 @@ function save() {
     })
     .then((response) => response.json())
     .then((data) => console.log("Saved:", data))
-    .catch((error) => console.error("Error saving:", error));
+    .catch((error) => console.log("Error saving:", error));
 
     events = []; // Clear events after sending
 }

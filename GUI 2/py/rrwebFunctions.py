@@ -63,8 +63,11 @@ def save_json():
         session_id = data.get("sessionId")
         events = data.get("events")
 
-        if not session_id or not events:
-            return jsonify({"error": "Missing sessionId or events"}), 400
+        if not session_id:
+            return jsonify({"error": "Missing sessionId"}), 400
+
+        if not events:
+            return jsonify({"message": "Missing events"})
 
         # Create session folder
         session_folder = os.path.join("jsons", session_id)
