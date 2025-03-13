@@ -1,3 +1,4 @@
+
 localStorage.removeItem("customDescription");
 localStorage.removeItem("customMentalIllness");
 localStorage.removeItem("customAge");

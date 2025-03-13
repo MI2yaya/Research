@@ -332,10 +332,10 @@ button:hover {
     background-color: #40a9ff;
 }
 
-#record-button.listening{
+#record-button.listening, #saveRecordButton.listening{
     background-color: red;
 }
-#record-button.listening:hover{
+#record-button.listening:hover, #saveRecordButton.listening:hover{
     background-color: rgb(194, 0, 0);
 }
 

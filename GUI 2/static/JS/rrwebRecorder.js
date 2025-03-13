@@ -34,6 +34,8 @@ function save() {
 setInterval(save, 10 * 1000);
 
 window.saveRecordedSession = function(){
+  document.getElementById('saveRecordButton').classList.add("listening");
+  document.getElementById("saveRecordButton").disabled = true;
   fetch(`${BASE_URL}/api/generate-video`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -46,7 +48,8 @@ window.saveRecordedSession = function(){
       
       // Correct way to trigger a file download
       fetch(`${BASE_URL}/download-video/${sessionId}`)
-        .then(response => response.blob())
+        .then(response => response.blob()
+          )
         .then(blob => {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -56,9 +59,17 @@ window.saveRecordedSession = function(){
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
+          document.getElementById('saveRecordButton').classList.remove("listening");
+          document.getElementById("saveRecordButton").disabled = false;
         })
         .catch(error => console.error("Error downloading video:", error));
+        
     }
   })
-  .catch((error) => console.error("Error saving:", error));
+  .catch((error) => console.error("Error saving:", error))
+  .finally(() => {
+    document.getElementById('saveRecordButton').classList.remove("listening");
+    document.getElementById("saveRecordButton").disabled = false;
+  });
+  
 }

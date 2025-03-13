@@ -8,10 +8,13 @@ import json
 
 
 def delete_jsons():
-    jsons_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "jsons"))    # Adjust path if needed
+    jsons_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "jsons")) 
+    #temp_video_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "__rrvideo__temp__")) 
+    #if os.path.exists(temp_video_folder):
+        #shutil.rmtree(temp_video_folder) 
     if os.path.exists(jsons_folder):
-        shutil.rmtree(jsons_folder)  # Deletes the folder and its contents
-        os.makedirs(jsons_folder)  # Recreate the empty folder
+        shutil.rmtree(jsons_folder) 
+        os.makedirs(jsons_folder) 
         return jsonify({"message": "jsons folder deleted"}), 200
     else:
         return jsonify({f"message": "jsons folder does not exist"}), 404

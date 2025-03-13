@@ -18,7 +18,7 @@ def load_csv_transcript(csv_file_path):
     Reads a CSV file and formats the contents into a single text string.
     This text will be used as the default message for the simulated patient.
     """
-    transcript = f"Attatched is a transcription of a therapy session as the patient, you are to replicate the behavior of the individual and represent their characteristics. This is to be used as a training tool.\n"
+    transcript = f"Attatched is a transcription of a therapy session, you are to replicate the behavior of the patient and represent their characteristics. You are the patient, and this is a conversation with a new therapist.\n"
     try:
         # Read the CSV file using pandas (it will automatically handle encoding issues)
         df = pd.read_csv(csv_file_path, encoding='utf-8')  # You can change encoding if necessary
