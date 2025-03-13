@@ -16,10 +16,15 @@
             <div class="spinningTray">
                 <button id="prevBtn" class="arrow">←</button>
                     <div class="item-display">
-                        <h1 id="itemTitle">N/A</h2>
-                        <h2 id="itemDescription">N/A</h2>
-                        <p id="itemMentalIllness">Mental Illness: Filler</p>
-                        <p id="itemAge">Age: Filler</p>
+                        <h1 id="itemTitle"></h2>
+                        <h2 id="itemDescription"></h2>
+                        <textarea id="custom-description" class="custom-input" placeholder="Enter Description!"></textarea>
+
+                        <p id="itemMentalIllness"></p>
+                        <textarea id="custom-mentalIllness" class="custom-input" placeholder="Enter Mental Illness!"></textarea>
+
+                        <p id="itemAge"></p>
+
                         <div id="modelSelector">
                             <h1>Choose an ML Model:</h1>
                             <button class="modelButton" data-model="GPT">GPT-4o</button>
@@ -28,7 +33,7 @@
                             <button class="modelButton" data-model="Gemini">Gemini</button>
                             //-->
                         </div>
-                        <label for="tunedCheckbox">
+                        <label id="tunedCheckBoxText">
                             <input type="checkbox" id="tunedCheckbox" class="tunedCheckbox" name="tuned" value="true">
                             Tuned?
                         </label>

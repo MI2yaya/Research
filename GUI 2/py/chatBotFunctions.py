@@ -44,8 +44,7 @@ def load_csv_transcript(csv_file_path):
         print(f"Error reading CSV: {e}")
         return ""
 
-
-def load_ml_model(character,tuned,model):
+def load_ml_model(character,tuned,model,description="",mentalIllness=""):
     global loaded_model, client, defaultMessage
     model_configs = {
         "Model 1": {
@@ -109,6 +108,18 @@ def load_ml_model(character,tuned,model):
                     "transcript_file": "transcripts/model_2.csv"
                 }
             }
+        },
+        "Custom":{
+            'N/A':{
+                "GPT": {
+                    "loaded_model": "gpt-4o",
+                    "default_message":f"Your mental Illness is {mentalIllness}.\nYou are to behave according to this background data as accurately as possible:\n{description}"
+                },
+                "GPT-Mini": {
+                    "loaded_model": "gpt-4o-mini",
+                    "default_message":f"Your mental Illness is {mentalIllness}.\nYou are to behave according to this background data as accurately as possible:\n{description}"
+                },
+            }
         }
     }
 
@@ -127,21 +138,20 @@ def load_ml_model(character,tuned,model):
             global conversation_gemini
             conversation_gemini = config["conversation_init"]()
 
-
         if "transcript_file" in config:
             # Read the CSV file and set as default_message
             transcript_path = config["transcript_file"]
             defaultMessage = load_csv_transcript(transcript_path)
-            print(defaultMessage)
+            
         else:
             # For tuned models, use the predefined default_message
             defaultMessage = config["default_message"]
 
         print(f"{loaded_model} preloaded.")
-        return loaded_model
+        return loaded_model,defaultMessage
     else:
         print("Model not found.")
-        return ""
+        return "",""
 
 def preload_model():
     global loaded_model, model
@@ -152,11 +162,16 @@ def preload_model():
         model = data['model']
         tuned = data['tuned']
         
+        description=data['description']
+        mentalIllness=data['mentalIllness']
+        
         # Load the model and store it in the global variable
-        loaded_model = load_ml_model(character,tuned,model)
+        loaded_model,defaultMessage = load_ml_model(character,tuned,model,description=description,mentalIllness=mentalIllness)
+        print(defaultMessage)
         return jsonify({
             "message": f"Model {loaded_model} preloaded successfully",
-            "model": loaded_model
+            "model": loaded_model,
+            "default":defaultMessage
             })
     except Exception as e:
         # Capture and log the exception
@@ -169,7 +184,7 @@ def get_ml_response(user_message):
     if not loaded_model:
         return "Model is not loaded. Please load the model first."
 
-    print("Getting input")
+    print(user_message)
     
      # Short-circuit to get response based on loaded model type
     if model.startswith("GPT"):
@@ -208,6 +223,8 @@ def get_ml_response(user_message):
     
     if generatedMessage.lower().startswith("patient: "):
         generatedMessage = generatedMessage[len("patient: "):]
+    if generatedMessage.lower().startswith("virtual vatient: "):
+        generatedMessage = generatedMessage[len("virtual patient: "):]
     if generatedMessage.lower().startswith("abe: "):
         generatedMessage = generatedMessage[len("abe: "):]
     return(generatedMessage)
@@ -217,9 +234,6 @@ def send_message():
     try:
         data = request.get_json()
         user_message = data['message']
-
-        print("waiting..")
-        print(user_message)
          
         # Check if a model has been loaded
         if not loaded_model:
@@ -227,10 +241,8 @@ def send_message():
 
         # Pass the user's message to the loaded ML model and get a response
         bot_response = get_ml_response(user_message)
-        print(bot_response)
         if bot_response[:4].lower()=="bot:":
             bot_response=bot_response[4:]
-        print("its alive ",bot_response)
         return jsonify({"response": bot_response})
     except Exception as e:
         # Capture and log the exception

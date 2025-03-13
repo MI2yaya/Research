@@ -1,6 +1,7 @@
 let loadedModel = null;
 let debounceTimeout = null;
 let recognition;
+let defaultMessage;
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(param);
@@ -10,9 +11,21 @@ const selectedItem = getQueryParam('selectedItem');
 const selectedModel = getQueryParam('selectedModel');
 const tuned = getQueryParam('tuned');
 
+const customDescription = localStorage.getItem("customDescription") || "N/A";
+const customMentalIllness = localStorage.getItem("customMentalIllness") || "N/A";
+
+if (selectedItem == "Custom" && customDescription == "N/A"){
+    console.log("Error in storage of desc")
+}
+
+document.getElementById("user").addEventListener("submit", function(event) {
+    event.preventDefault();
+    sendMessage();
+});
+
 // Function to preload model
 function preloadModel() {
-    if (selectedItem && selectedModel && tuned) {
+    if (selectedItem && selectedModel && tuned && customDescription && customMentalIllness) {
         fetch(`${BASE_URL}/api/preload-model`, {
             method: 'POST',
             headers: {
@@ -21,14 +34,18 @@ function preloadModel() {
             body: JSON.stringify({
                 character: selectedItem,
                 model: selectedModel,
-                tuned: tuned
+                tuned: tuned,
+                description:customDescription,
+                mentalIllness:customMentalIllness
             }),
         })
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                loadedModel = data.model;  // Store the loaded model's reference
-                console.log(data.message);  // You can also update the UI to notify the user
+                loadedModel = data.model; 
+                defaultMessage = data.default;
+                console.log(data.message);  
+                console.log(data.default);
                 console.log(data.model);
             } else if (data.error) {
                 console.error("Error preloading model:", data.error);
@@ -49,33 +66,33 @@ function sendMessage() {
                 return;
             }
             
-            var inputField = document.getElementById("user-input");
-            var sendButton = document.getElementById("send-button");
+            const inputField = document.getElementById("user-input");
+            const sendButton = document.getElementById("send-button");
             
 
             inputField.disabled = true;
             sendButton.disabled = true;
 
-            appendMessage('Therapist', userInput);
-            const fullChatHistory = generateChatHistory(); // dont include . . .
-            appendMessage('Patient',". . .",true);
+            appendMessage('Therapist In Training', userInput);
+            const chatHistory = generateChatHistory(); // dont include . . .
+            appendMessage('Virtual Patient',". . .",true);
 
             document.getElementById('user-input').value = '';
 
-            console.log(fullChatHistory);
+            console.log(chatHistory);
 
             fetch(`${BASE_URL}/api/send-message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: fullChatHistory }),  
+                body: JSON.stringify({ message: chatHistory }),  
             })
             .then(response => response.json())
             .then(data => {
                 if (data.response) {
                     console.log("Bot response:", data.response);
-                    appendMessage('Patient', data.response);  // Display the bot's response in your UI
+                    appendMessage('Virtual Patient', data.response);
 
                     inputField.disabled = false;
                     sendButton.disabled = false;
@@ -117,8 +134,8 @@ function recordMessage(){
             return;
         }
 
-        let chatInput = document.getElementById('user-input');
-        const recordButton = document.getElementById("record-button");
+        let inputField = document.getElementById('user-input');
+        let recordButton = document.getElementById("record-button");
 
         if(recordButton.classList.contains("listening")){
             if(recognition) recognition.stop();
@@ -136,7 +153,7 @@ function recordMessage(){
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     transcript += event.results[i][0].transcript + " ";
                 }
-                chatInput.value = transcript.trim(); 
+                inputField.value = transcript.trim(); 
                 console.log("succeeded!", transcript);
             };
 
@@ -153,10 +170,6 @@ function recordMessage(){
     }, 300);
 }
 
-// Function to show close screen
-function showCloseScreen(){
-    document.getElementById("close-screen").classList.toggle("hidden");
-}
 
 //function to generate chat history as csv
 window.saveChat = function(){
@@ -164,8 +177,10 @@ window.saveChat = function(){
     let lines = chatHistory.split("\n");
     let csvContent = "data:text/csv;charset=utf-8,Message\n";
 
+    csvContent+= `"Background:${defaultMessage.replace(/"/g, '""').replace(/\n/g, ' ')}"\n`;
+
     lines.forEach(line => {
-        csvContent += `"${line.replace(/"/g, '""')}"\n`; // Escape quotes for CSV format
+        csvContent += `"${line.replace(/"/g, '""')}"\n`;
     });
 
     let encodedUri = encodeURI(csvContent);
@@ -180,14 +195,19 @@ window.saveChat = function(){
 // Function to append a message to the UI
 function appendMessage(sender, text, filler=false) {
     const messageContainer = document.createElement('div');
-    const chatContainer = document.getElementById('chatbox')
+    const chatContainer = document.getElementById('chatbox');
+    const senderDictionary={
+        "Therapist In Training":"Therapist",
+        "Virtual Patient":"Patient"
+    }
     if(filler){
-        messageContainer.classList.add('message', `${sender}-message`,"filler")
+        messageContainer.classList.add('message', `${senderDictionary[sender]}-message`,"filler")
         messageContainer.id="filler"
     }else{
-        messageContainer.classList.add('message', `${sender}-message`);
+        messageContainer.classList.add('message', `${senderDictionary[sender]}-message`);
     }
-    messageContainer.textContent = `${sender.charAt(0).toUpperCase() + sender.slice(1)}: ${text}`;
+    messageContainer.innerHTML = `<strong>${sender}:</strong> ${text}`;
+
 
     document.getElementById('messages').appendChild(messageContainer);
 
@@ -198,11 +218,15 @@ function appendMessage(sender, text, filler=false) {
 function generateChatHistory() {
     const messagesContainer = document.getElementById('messages');
     const messageElements = messagesContainer.getElementsByClassName('message');
-    let chatHistory = "System: This is a conversation with a new therapist, who you have not talked with prior, do not refer to prior sessions.\n";
+    let chatHistory = "";
 
     for (let messageElement of messageElements) {
         
-        chatHistory += messageElement.textContent + "\n";
+        let messageText = messageElement.textContent;
+        // Replace "Therapist In Training:" with "Therapist:"
+        messageText = messageText.replace(/^Therapist In Training:/, "Therapist:");
+        
+        chatHistory += messageText + "\n";
     }
 
     return chatHistory.trim();

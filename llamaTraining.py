@@ -26,7 +26,7 @@ train_test_split = dataset.train_test_split(test_size=0.1)
 
 # Load tokenizer and model
 mother_series = "meta-llama"
-model_name = "Llama-3.1-405B"
+model_name = "Llama-3.2-1B"
 combined_name = mother_series+"/"+model_name
 tokenizer = AutoTokenizer.from_pretrained(combined_name)
 if tokenizer.pad_token is None:

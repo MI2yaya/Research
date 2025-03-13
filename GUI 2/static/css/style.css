@@ -262,24 +262,13 @@ nav{
     margin-top: 10px;
 }
 
-#close-screen { /* Work on this!!!! */
+#close-screen { 
     display: flex;
     align-self: center;
     height: 10%;
     width: 100%;
     justify-content: space-between;
     background-color: white;
-}
-#close-screen-header {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0; /* Adds space around the title */
-    border-bottom: 1px solid #ddd; /* Optional: Adds a subtle separation */
-}
-#close-screen-forms {
-    width: 100%;
-    text-align: center;
-    padding: 20px 0;
 }
 
 .message {
@@ -307,9 +296,16 @@ nav{
 
 #user {
     display: flex;
+    
     border-top: 1px solid #eee;
     padding: 10px;
     background-color: #fafafa;
+    width: 100%;
+}
+
+#chat-form {
+    flex: 1; 
+    display: flex;
 }
 
 #user-input {
@@ -318,7 +314,6 @@ nav{
     padding: 1rem;
     border: 1px solid #ddd;
     border-radius: 4px;
-    margin-right: 10px;
 }
 
 button {
@@ -361,4 +356,18 @@ button:hover {
 }
 #abstract h1 {
     align-self: center;
+}
+
+.custom-input {
+    width: 80%;
+    min-height: 40px;
+    max-height: 200px; 
+    overflow-y: auto;
+    resize: vertical;
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
 }

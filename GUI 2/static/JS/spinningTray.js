@@ -1,8 +1,13 @@
+localStorage.removeItem("customDescription");
+localStorage.removeItem("customMentalIllness");
+localStorage.removeItem("customAge");
+console.log("Cleared Storage")
+
 const items = [
     { title: 'Model 1', description: 'Proof of Concept model to show capabilities, accessability, and form a chain of thought.', mentalIllness: 'Major Depressive Disorder', age: '65' },
     { title: 'Model 2', description: 'Proof of Concept model for Anxiety', mentalIllness: 'Generalized Anxiety', age: '50' },
-    { title: 'TBA', description: 'Description of Item 3', mentalIllness: 'TBA', age: 'TBA' },
-    { title: 'TBA', description: 'Description of Item 4', mentalIllness: 'TBA', age: 'TBA' },
+    { title: 'Custom', description: 'Enter Desc.', mentalIllness: 'Enter Mental Illness', age: 'Enter Age Range' }
+    //{ title: 'M', description: 'Description of Item 4', mentalIllness: 'TBA', age: 'TBA' },
 ];
 
 let currentIndex = 0;
@@ -15,13 +20,51 @@ const nextBtn = document.getElementById('nextBtn');
 const submitBtn = document.getElementById('submitBtn');
 const itemForm = document.getElementById('itemForm');
 const tunedCheckbox = document.getElementById("tunedCheckbox");
+const tunedCheckboxText = document.getElementById("tunedCheckBoxText")
+
+const defaultMentalIllness = document.getElementById('itemMentalIllness')
+const defaultAge = document.getElementById('itemAge')
+const defaultDescription = document.getElementById('itemDescription')
+
+const customMentalIllness = document.getElementById('custom-mentalIllness')
+const customDescription = document.getElementById('custom-description')
+
+const itemDisplay = document.querySelector('.item-display');
 
 // Function to update the item display
 function updateItemDisplay() {
     itemTitle.textContent = items[currentIndex].title; //Set the individual aspects
     itemDescription.textContent = items[currentIndex].description;
-    document.getElementById('itemMentalIllness').textContent = `Mental Illness: ${items[currentIndex].mentalIllness}`;
-    document.getElementById('itemAge').textContent = `Age: ${items[currentIndex].age}`;
+    defaultMentalIllness.textContent = `Mental Illness: ${items[currentIndex].mentalIllness}`;
+    defaultAge.textContent = `Age: ${items[currentIndex].age}`;
+
+    // If "Custom" is selected, show input fields
+    if (items[currentIndex].title === "Custom") {
+        customDescription.style.display = "block";
+        customMentalIllness.style.display = "block";
+
+        defaultAge.style.display = "none";
+        defaultDescription.style.display = "none";
+        defaultMentalIllness.style.display = "none";
+        tunedCheckboxText.style.display = "none";
+
+    } else {
+        customDescription.style.display = "none";
+        customMentalIllness.style.display = "none";
+
+        defaultAge.style.display = "block";
+        defaultDescription.style.display = "block";
+        defaultMentalIllness.style.display = "block";
+        tunedCheckboxText.style.display = "block";
+    }
+
+
+    // Ensure proper centering
+    itemDisplay.style.display = "flex";
+    itemDisplay.style.flexDirection = "column";
+    itemDisplay.style.justifyContent = "center";
+    itemDisplay.style.alignItems = "center";
+    itemDisplay.style.textAlign = "center";
 }
 
 // Event listeners for the buttons
@@ -59,11 +102,25 @@ submitBtn.addEventListener('click', () => {
 
     // Update the hidden input value
     updateSelectedItem();
+
+    // I mean I can just pass this as storage........................ maybe if I feel like it
     document.getElementById('selectedModel').value = selectedModel;
 
     // Redirect to chatBot.html with the selected item as a query parameter
     const selectedItem = document.getElementById("selectedItem").value;
-    const tuned = tunedCheckbox.checked;
+    let tuned = tunedCheckbox.checked;
+    console.log(tuned)
+    if (items[currentIndex].title === 'Custom') {
+        localStorage.setItem('customDescription', customDescription.value);
+        localStorage.setItem('customMentalIllness', customMentalIllness.value);
+        tuned = "N/A";
+
+        if (!customDescription.value && !customMentalIllness.value){
+            alert('Please Enter All Fields! Or Select a Different Model.');
+            return;
+        }
+    }
+
     window.location.href = `/chatBot?selectedItem=${encodeURIComponent(selectedItem)}&selectedModel=${encodeURIComponent(selectedModel)}&tuned=${encodeURIComponent(tuned)}`;
 });
 
@@ -73,5 +130,5 @@ function updateSelectedItem() {
     document.getElementById("selectedItem").value = itemTitle;
 }
 
-// Initialize the display
+
 updateItemDisplay();
